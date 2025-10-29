@@ -112,35 +112,202 @@ SkillSwap — це застосунок, що об’єднує людей, як
 
 ![Use Case Diagram](https://uml.planttext.com/plantuml/svg/fLPRJXj14Fn7yXr6V8KFNo72Pq0SO6KSOc4UCXlb8uhaHmH4Gd4K8IEXyB1yWMLjOB7nSeMU6wMwPyPUxsnCf012pBgwkgkwUvRDup1eXf_s6wMrHkr3gC93rQplVWpLJhrPguRrmuFIMcajg8Q7JRLELvJg5YMwhJkwIp55-dHT1STgUm7vIMDwqNsQwRx0MW1rE4o05MPZuk1Wjr43V63Ow85UA59RU_L6O-jpSBIklZ1IgQEWkXViClAE7lJ5dF84z3s5m4XHHB4mpF0xqT-GVE8GmgFmjQtAvVVg7LtYazQ2oQf07DDmM9TfDfQ3XaZGfsS3YvLkBuhMtHps5v1Zcb4AuiH4l4hEbARwV0MnFaLPA8sUE46gJ-28UV1eatpDMtBBj28Or0hbUzsXo7DWW6onHLhTzvGgoJJ6OPJrv3MR8LVy1IID7N36NG3ZAQf8LW1bCZf66FkuuRM7amiceiT5YQOYzd7YMNvhVHgXo1v2kxPHqWcMuqho3OIuCmQWBXRB0VUOcrR1t8obKsqedRVL1HSv3tIS7mrAiaZdY7LN1ZjBw-cyCH3UbBajl5lk0Sp7rfbEJkGnTaASvrsuV8CDqbvvQW7zBe4pB9WP04LFR0iC_ekFDnWXMNgxaJ428dq1xfHzAzZ3WRWzPPLksk09DhhBYu2pxkVglOPSvceZoZc7Hyyu9Yl2XYXb90EOk3MBT5lKSej4e1YK7oeU1baL7YuN3IAhj61mKOW-Sy3CzFtJk9hhagS3V_t899eFakVwm6-OvtE-oxNzeDue5_NwVyR3VWB1F7NJ9KglxA7n7CvEMPyXobo-pE7fk2kwdTYZgLptabu9OkQralTkRFlpnar_BR082zZ9NuE9FReNstcnEk_zPtYiJhCUiXOo1VdNL2KpJj06t2HRH-4Dlx4S-jkHvmBDlPlHN5bzVKPofyDUFd8PufiSOdw_IH7z7DULdpYIj2CxsJs8NtfTf7O_O2H-Dci7E_BF27__0G00)
 
-## 6. High-Level Architecture
+## 6. Sequence Diagram
 
-### 6.1 Operating Environment
+```mermaid
+sequenceDiagram
+autonumber
+actor U as Користувач
+actor A as Адміністратор
+participant FE as Frontend (Angular SPA)
+participant BE as Backend API (.NET Core)
+participant DB as PostgreSQL
+participant RS as Redis (Cache/Sessions)
+participant SG as SignalR Hub
+participant AF as Azure Functions
+participant EM as Email Service
 
-Операційне середовище для системи **SkillSwap** наведено нижче:
+U->>FE: Відкрити сайт
+FE->>BE: GET /
+BE-->>FE: Завантаження SPA
 
-* **База даних:** PostgreSQL  
-* **Архітектура:** клієнт–серверна система  
-* **Операційна система:** Windows  
-* **Платформа:** .NET Core  
+U->>FE: Ввести email і пароль для реєстрації
+FE->>BE: POST /api/auth/register
+BE->>DB: INSERT new user
+DB-->>BE: OK
+BE->>RS: Зберегти сесію
+BE->>EM: Надіслати підтвердження
+EM-->>U: Email підтвердження
+BE-->>FE: 201 Created
 
-### 6.2 Assumptions and Dependencies
+U->>FE: Увійти в систему
+FE->>BE: POST /api/auth/login
+BE->>DB: SELECT user
+DB-->>BE: OK
+BE->>RS: Зберегти токен у Redis
+BE-->>FE: JWT Token
+FE-->>U: Авторизація успішна
+
+U->>FE: Оновити профіль (навички, інтереси, фото)
+FE->>BE: PUT /api/profile
+BE->>DB: UPDATE profile
+DB-->>BE: OK
+BE->>RS: Оновити кеш
+BE-->>FE: OK
+
+U->>FE: Пошук користувачів
+FE->>BE: GET /api/search?q=design
+BE->>RS: Перевірити кеш
+alt Результат у кеші
+    RS-->>BE: Cached data
+else Немає у кеші
+    BE->>DB: SELECT користувачі за параметрами
+    DB-->>BE: Дані
+    BE->>RS: Зберегти в кеш
+end
+BE-->>FE: Результати пошуку
+FE-->>U: Відображення результатів
+
+BE->>DB: Автоматичний підбір партнерів
+DB-->>BE: Список збігів
+BE->>SG: Надіслати повідомлення в реальному часі
+SG-->>FE: Push сповіщення
+FE-->>U: Новий збіг
+
+U->>FE: Надіслати повідомлення
+FE->>SG: SignalR sendMessage()
+SG->>BE: Зберегти повідомлення
+BE->>DB: INSERT message
+DB-->>BE: OK
+BE-->>SG: OK
+SG-->>FE: Доставка повідомлення іншому користувачу
+
+U->>FE: Узгодити час співпраці
+FE->>BE: POST /api/exchange/schedule
+BE->>DB: UPDATE exchange
+DB-->>BE: OK
+BE-->>FE: OK
+
+U->>FE: Підтвердити обмін
+FE->>BE: POST /api/exchange/confirm
+BE->>DB: UPDATE status
+DB-->>BE: OK
+BE-->>FE: OK
+
+U->>FE: Залишити відгук
+FE->>BE: POST /api/reviews
+BE->>DB: INSERT review
+DB-->>BE: OK
+BE->>RS: Оновити кеш профілю
+BE-->>FE: OK
+
+
+BE->>AF: Виклик Azure Function для розсилки
+AF->>EM: Надіслати email
+EM-->>U: Email-сповіщення
+SG-->>FE: SignalR сповіщення у браузері
+FE-->>U: Нове повідомлення / збіг
+
+A->>FE: Увійти в адмін-панель
+FE->>BE: POST /api/admin/login
+BE->>DB: SELECT admin
+DB-->>BE: OK
+BE-->>FE: JWT Token
+FE-->>A: Авторизація успішна
+
+A->>FE: Заблокувати користувача
+FE->>BE: POST /api/admin/block/{userId}
+BE->>DB: UPDATE users SET status=blocked
+DB-->>BE: OK
+BE->>RS: Інвалідність кешу
+BE-->>FE: OK
+
+A->>FE: Переглянути аналітику
+FE->>BE: GET /api/admin/stats
+BE->>DB: SELECT stats
+DB-->>BE: Дані
+BE-->>FE: JSON дані
+FE-->>A: Графіки статистики
+```
+
+## 7. High-Level Architecture
+
+### 7.1 Operating Environment
+
+Операційне середовище для системи **SkillSwap**:
+
+* **Архітектурний підхід:** клієнт–серверна система з розділенням на frontend (SPA) та backend (REST API).
+* **Frontend:** Angular SPA, що виконується у браузері користувача.
+* **Backend:** .NET Core (C#), реалізує REST API та SignalR для чату в реальному часі.
+* **Database:** PostgreSQL – зберігання акаунтів, профілів, навичок, історії обмінів та відгуків.
+* **Cache:** Redis – кеш пошукових запитів, зберігання сесій та токенів.
+* **Message/Notification Layer:** SignalR (websocket) для push-повідомлень і миттєвого чату.
+* **Клієнтське середовище:** сучасні браузери (Chrome, Firefox, Opera, Safari), адаптивна верстка для мобільних пристроїв.
+
+### 7.2 Assumptions and Dependencies
 
 Система розроблятиметься з використанням платформи **.NET Core** та мови програмування **C#**.
 
-**Додаткові залежності:**
+**Додаткові залежності**
 * **Angular** — для створення односторінкового вебзастосунку (SPA).  
 * **SignalR** — для реалізації чату та сповіщень у реальному часі.  
 * **PostgreSQL** — для зберігання профілів користувачів, навичок і історії обмінів.  
 * **Redis** — для кешування та зберігання сесій.  
 * **Docker** — для контейнеризації та розгортання застосунку.  
-* **Azure Functions** *(за потреби)* — для обробки сповіщень і виконання фонових завдань.
+* **Azure Functions** — для обробки сповіщень і виконання фонових завдань.
 
 Фреймворк **Angular** забезпечує роботу застосунку без перезавантаження сторінки. Система буде доступною у браузерах **Chrome**, **Opera**, **Mozilla Firefox**, **Safari** та матиме адаптивний дизайн для смартфонів і планшетів.
 
+```mermaid
+graph TD
+    subgraph Client["Client Side"]
+        Browser["Web Browser<br/>(Chrome / Firefox / Safari / Opera)"]
+    end
 
-## 7. Concurrency and Distributed Patterns
+    subgraph Frontend["Frontend Layer"]
+        Angular["Angular SPA"]
+    end
 
-### 1. Обробка кількох пошукових запитів одночасно
+    subgraph Backend["Backend Layer (.NET Core API)"]
+        API["REST API"]
+        SignalR["SignalR Hub (Real-time Chat/Notifications)"]
+    end
+
+    subgraph Data["Data Layer"]
+        PostgreSQL["PostgreSQL Database"]
+        Redis["Redis (Cache & Sessions)"]
+    end
+
+    subgraph Services["Background & External Services"]
+        AzureF["Azure Functions<br/>(Background Jobs, Notifications)"]
+        Email["Email Service"]
+    end
+
+    subgraph Infra["Infrastructure"]
+        Docker["Docker Containers"]
+    end
+
+    %% Connections
+    Browser --> Angular
+    Angular --> API
+    Angular --> SignalR
+
+    API --> PostgreSQL
+    API --> Redis
+    API --> AzureF
+    AzureF --> Email
+
+    SignalR --> Redis
+
+    API --> Docker
+    SignalR --> Docker
+    PostgreSQL --> Docker
+    Redis --> Docker
+```
+
+## 8. Concurrency and Distributed Patterns
+
+### 8.1 Обробка кількох пошукових запитів одночасно
 
 Користувачі одночасно виконують пошук партнерів за навичками. Сервер обробляє їхні запити через пул потоків (**Thread Pool**), що дозволяє уникнути перевантаження системи та забезпечує швидке отримання результатів пошуку.
 
@@ -181,7 +348,7 @@ sequenceDiagram
     note over User1,User3: Усі користувачі отримують відповіді одночасно
 ```
 
-### 2. Обопільне підтвердження обміну навичками 
+### 8.2 Обопільне підтвердження обміну навичками 
 
 Користувачі одночасно виконують дії, пов’язані з підтвердженням обміну навичками. Якщо один користувач змінює або видаляє свій профіль під час очікування відповіді, система перевіряє актуальність даних перед підтвердженням угоди. У разі виявлення змін запит скасовується, а обидва користувачі отримують повідомлення про недійсність обміну. Такий підхід запобігає конфліктам даних і забезпечує узгодженість системи.
 
@@ -213,7 +380,7 @@ sequenceDiagram
     note over UserA,UserB: Optimistic Concurrency — система запобігає конфліктам,якщо дані змінились під час підтвердження
 ```
 
-### 3. Обмеження частоти запитів на обмін 
+### 8.3 Обмеження частоти запитів на обмін 
 
 Користувачі одночасно надсилають запити на обмін навичками. Система застосовує обмежувач частоти (**Rate Limiter**), який перевіряє кількість вихідних запитів від користувача та кількість вхідних запитів до адресата. Якщо ліміт перевищено — запит відхиляється або відкладається; якщо ні — створюється новий запис у базі даних і надсилається сповіщення адресату. Це запобігає спаму, перевантаженню сервера та забезпечує стабільну роботу системи під час великої кількості одночасних дій.
 
@@ -250,7 +417,7 @@ sequenceDiagram
     note over RateLimiter,ExchangeService: Token Bucket/Sliding Window для двох правил
 ```
 
-### 4. Асинхронне оновлення рекомендацій 
+### 8.4 Асинхронне оновлення рекомендацій 
 
 Коли користувач змінює свої навички або інтереси у профілі, система має оновити список рекомендованих партнерів. Щоб не затримувати користувача під час збереження профілю, ці обчислення виконуються **асинхронно**. Після збереження профілю створюється подія **ProfileUpdated**, яку перехоплює фоновий сервіс і у кількох потоках оновлює рекомендації, не блокуючи інтерфейс користувача. (Event-Driven / Async)
 
@@ -280,7 +447,7 @@ sequenceDiagram
     note over User,RecommendationService: Користувач одразу отримує підтвердження, а рекомендації оновлюються у фоні без затримки інтерфейсу
 ```
 
-### 5. Надсилання повідомлень у чаті в реальному часі 
+### 8.5 Надсилання повідомлень у чаті в реальному часі 
 
 У системі **SkillSwap** користувачі спілкуються через чат у реальному часі. Коли багато користувачів одночасно надсилають повідомлення у різних чатах, сервер може бути перевантажений. Щоб уникнути затримок та втрати повідомлень під час пікових навантажень, застосовано патерн **Producer–Consumer**. Кожне повідомлення потрапляє до черги, де споживачі (серверні потоки) паралельно обробляють і доставляють його адресату. Це забезпечує стабільну роботу чату навіть при великій кількості активних діалогів.
 
@@ -305,7 +472,7 @@ sequenceDiagram
     note over UserA,UserB: Повідомлення передаються через чергу — кілька чатів обробляються паралельно без блокувань
 ```
 
-### 6. Захист сповіщень від недоступності зовнішнього API 
+### 8.6 Захист сповіщень від недоступності зовнішнього API 
 
 Система надсилає сповіщення через зовнішній сервіс. Коли цей сервіс недоступний, **Circuit Breaker** тимчасово блокує виклики, а сповіщення ставляться у **чергу з експоненційною затримкою (Retry Queue)**. Після відновлення з’єднання коло знову відкривається, і накопичені повідомлення автоматично відправляються повторно. Такий підхід запобігає перевантаженню системи та гарантує доставку повідомлень після збою.
 
