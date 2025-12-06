@@ -441,3 +441,40 @@ flowchart LR
 - **Кількість створених обмінів на день (Exchange Count)** — метрика №8  
 - **Частка завершених обмінів (Exchange Completion Rate)** — метрика №9  
 
+## Monitoring & Alerting Model 
+### 1. Monitoring Model
+
+| **Метрика**                            | **Вимірювання** | **Пов’язаний ресурс**                 | **Як збирається**                             | **Призначення (Insight)**                              |
+| -------------------------------------- | --------------- | ------------------------------------- | --------------------------------------------- | ------------------------------------------------------ |
+| **API Response Time (avg)**            | ms              | .NET API / Docker                     | Application Insights / custom middleware logs | Виявлення повільних ендпоінтів, оцінка продуктивності. |
+| **API Error Rate**                     | %               | .NET API                              | NLog / Application Insights                   | Відслідковує стабільність API, виявлення аномалій.     |
+| **Request Count**                      | int             | API Gateway / Backend                 | Application Insights                          | Загальне навантаження, пікові години.                  |
+| **CPU Usage**                          | %               | Backend контейнер / сервер            | Docker Stats / Prometheus                     | Чи вистачає обчислювальних ресурсів.                   |
+| **Memory Usage**                       | %               | Backend container                     | Docker Stats / Prometheus Node Exporter       | Виявлення memory leak, перевантаження.                 |
+| **SignalR Connection Count**           | int             | SignalR Hub                           | SignalR performance counters                  | Стан каналів реального часу, піки активності.          |
+| **SignalR Message Delivery Time**      | ms              | SignalR → API → DB                    | Custom logs / Application Insights            | Час обробки повідомлень у чаті.                        |
+| **Redis Hit/Miss Ratio**               | float           | Redis Cache                           | Redis CLI / Redis Exporter                    | Ефективність кешу, чи зменшує він навантаження на DB.  |
+| **Redis Memory Usage**                 | MB/%            | Redis                                 | Redis Monitoring                              | Контроль використання пам’яті для сесій і кешу.        |
+| **DB Query Time (avg)**                | ms              | PostgreSQL                            | pg_stat_statements                            | Виявлення довгих SQL-запитів.                          |
+| **DB Connection Count**                | int             | PostgreSQL                            | RDS Insights / pg_stat_activity               | Контроль навантаження, витік підключень.               |
+| **Queue Length (Notifications Queue)** | int             | Azure Functions Queue                 | Azure Metrics                                 | Визначає затримки у відправленні email/spawn task.     |
+| **Email Delivery Success Rate**        | %               | Email Service                         | Custom monitoring + logs                      | Перевірка зовнішнього API та якості розсилок.          |
+| **Authentication Failure Count**       | int / hour      | Auth Service                          | NLog + Security logs                          | Виявлення ботів, brute-force, зловмисників.            |
+| **Uptime сервісів**                    | %               | Frontend, Backend, Redis, DB, SignalR | Ping/Health Checks                            | Безперервність роботи системи.                         |
+
+### 2. Alerting Model
+
+| **Метрика**                     | **Критичне значення**          | **Тип події**          | **Критичність** | **Mitigation Plan**                                                                 |
+|--------------------------------|--------------------------------|------------------------|------------------|--------------------------------------------------------------------------------------|
+| **API Response Time (avg)**    | > 800 ms протягом 5 хв         | Latency Alert          | High             | Перевірити повільні ендпоінти, оптимізувати SQL, увімкнути/розширити кеш Redis.     |
+| **API Error Rate**             | > 5% помилок за 5 хв           | Error Spike            | Critical         | Перевірити логування, знайти точку відмови, зробити rollback останнього релізу.     |
+| **CPU Usage**                  | > 85% протягом 10 хв           | Threshold Breach       | High             | Масштабувати контейнер/вузол, оптимізувати ресурсоємні операції.                    |
+| **Memory Usage**               | > 80% RAM протягом 10 хв       | Resource Saturation    | High             | Перезапустити сервіс, усунути memory leak, збільшити обсяг памʼяті.                 |
+| **SignalR Message Delivery Time** | > 500 ms середня затримка      | Realtime Delay         | High             | Перевірити навантаження на API та Redis, оптимізувати обробку подій.                |
+| **Redis Hit/Miss Ratio**       | Miss ratio > 0.4               | Cache Efficiency Drop  | Medium           | Переглянути TTL, розширити кеш, оптимізувати запити, що кешуються.                   |
+| **DB Query Time (avg)**        | > 1500 ms                      | Performance Degradation| High             | Оптимізувати SQL, додати індекси, перевірити блокування в БД.                      |
+| **DB Connection Count**        | > 80% ліміту підключень        | Connection Saturation  | High             | Перевірити витоки підключень, збільшити ліміт пулу, оптимізувати транзакції.        |
+| **Queue Length (Notifications)** | > 500 елементів               | Queue Threshold        | Medium           | Додати воркери, перевірити затримки у функції надсилання email.                     |
+| **Email Delivery Success Rate** | < 90%                          | Delivery Failure       | Medium           | Перевірити зовнішній API, перегенерувати ключ доступу, повторити відправки.         |
+| **Authentication Failure Count** | > 50 за годину                | Security Alert         | High             | Заблокувати IP, увімкнути rate limiting, додати CAPTCHA.                             |
+| **Uptime сервісів**            | < 99% за добу                  | Availability Drop      | Critical         | Перевірити вузли, DNS, балансер, виконати відновлення сервісу.                      |
