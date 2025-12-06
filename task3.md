@@ -368,6 +368,70 @@ flowchart LR
 | **IDOR**                        | Не дозволяти клієнту передавати chatId, якщо він не належить користувачу; перевірка owner/participant.               |
 | **Відсутність audit-логування** | Логувати: message sent, edited, deleted; metadata: userId, chatId, IP, User-Agent, час; окремий audit storage.       |
 
+## Deployment model
+### Deployment diagram 
+
+```mermaid
+graph TD
+    %% Nodes
+    USER[User]
+    FE["Angular SPA<br/>(Frontend hosting / CDN)"]
+    API["Backend API<br/>(.NET Core)"]
+    HUB["SignalR Hub<br/>(Real-time)"]
+
+    DB[(PostgreSQL Database)]
+    REDIS[(Redis Cache)]
+
+    FUNC["Azure Functions<br/>(Background jobs)"]
+    EMAIL["Email Service<br/>(SMTP)"]
+
+    %% Client flow
+    USER -->|HTTPS| FE
+
+    %% Frontend -> backend
+    FE -->|REST API| API
+    FE -->|WebSocket| HUB
+
+    %% Backend dependencies
+    API -->|SQL queries| DB
+    API -->|Cache / sessions| REDIS
+    API -->|Events| FUNC
+
+    %% Real-time backplane
+    HUB -->|Backplane| REDIS
+
+    %% Background notifications
+    FUNC -->|SMTP| EMAIL
+```
+
+### Components
+- **User** – кінцевий користувач, який взаємодіє із системою через веб-браузер та виконує основні дії в застосунку.
+- **Angular SPA (Frontend hosting / CDN)** – односторінковий веб-застосунок на Angular, який віддається у вигляді статичних файлів (може хоститися на звичайному веб-сервері або через CDN). Відповідає за інтерфейс користувача та виклики до Backend API.
+- **Backend API (.NET Core)** – серверна частина системи, що реалізує REST API для роботи з профілями, навичками, збігами, обмінами, відгуками. Також генерує події для фонової обробки (сповіщення, email тощо).
+- **SignalR Hub (Real-time)** – компонент для комунікацій у реальному часі (чат, миттєві сповіщення) на основі WebSocket-з’єднання між фронтендом і сервером.
+- **PostgreSQL Database** – основне реляційне сховище даних (користувачі, навички, інтереси, Matches, Exchanges, Reviews).
+- **Redis Cache** – кеш і сховище сесій. Використовується для прискорення пошуку, зберігання сесій/токенів, а також як backplane для масштабованої роботи SignalR.
+- **Azure Functions (Background jobs)** – безсерверні фонові функції, які отримують події від бекенду (наприклад, створення збігу або обміну) та виконують асинхронні дії, такі як надсилання email-сповіщень.
+- **Email Service (SMTP)** – зовнішній поштовий сервіс, що надсилає службові листи: підтвердження реєстрації, нові збіги, оновлення статусів обмінів тощо.
+
+### Workflow
+Типовий робочий потік у розгорнутій системі:
+1. Користувач відкриває застосунок у браузері.  
+   Браузер завантажує Angular SPA по протоколу HTTPS з фронтенд-хостингу або CDN.
+2. Після завантаження SPA виконує запити до **Backend API (.NET Core)** через REST API  
+   для реєстрації/логіну, оновлення профілю, пошуку партнерів, створення збігів та обмінів.
+3. Для чату та миттєвих сповіщень Angular SPA встановлює **WebSocket-з’єднання**  
+   з **SignalR Hub (Real-time)**, щоб отримувати події в режимі реального часу.
+4. **Backend API** при обробці запитів:
+   - читає та записує дані в **PostgreSQL Database**,  
+   - використовує **Redis Cache** для кешування пошуку та зберігання сесій/токенів.
+5. **SignalR Hub** використовує **Redis як backplane**,  
+   що дозволяє узгоджувати повідомлення між усіма інстансами сервера при масштабуванні та гарантує доставку подій у реальному часі для всіх підключених користувачів.
+6. Коли необхідно виконати фонову операцію (наприклад, сповіщення про новий збіг або підтвердження обміну),  
+   **Backend API** генерує подію та передає її в **Azure Functions (Background jobs)**.
+7. **Azure Functions** виконують обробку події та через SMTP взаємодіють з **Email Service**,  
+   який надсилає користувачам відповідні повідомлення (підтвердження, нагадування, оновлення).
+
 ## Analytics model
 ### Таблиця аналітичної моделі
 | Метрика                                                            | Вимірювання / Формат                                                                     | Пов’язана функціональність                                                                            | Призначення (Insight)                                                                                                           |
