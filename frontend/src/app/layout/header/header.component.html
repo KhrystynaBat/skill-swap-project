@@ -1,0 +1,28 @@
+<header class="header">
+    <div class="header-container">
+        <div class="left">
+            <div class="logo" (click)="goHome()">
+                SkillSwap
+            </div>
+
+            <button class="about-btn" routerLink="/about">
+                About
+            </button>
+        </div>
+
+        <div class="nav">
+            <ng-container *ngIf="isLoggedIn(); else guest">
+                <button routerLink="/matches">Matches</button>
+                <button (click)="goToSearch()">Search</button>
+                <button (click)="goToProfile()">Profile</button>
+                <button (click)="logout()">Logout</button>
+            </ng-container>
+
+            <ng-template #guest>
+                <button (click)="goToLogin()">Login</button>
+                <button class="primary" (click)="goToRegister()">Register</button>
+            </ng-template>
+        </div>
+
+    </div>
+</header>

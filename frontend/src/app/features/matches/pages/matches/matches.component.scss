@@ -1,0 +1,187 @@
+.matches-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.matches-card {
+  width: 100%;
+  max-width: 700px;
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.match-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f8faff;
+  border: 1px solid #e6edf7;
+  transition: 0.2s;
+}
+
+.match-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.user-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.incoming-text {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.waiting-text {
+  color: #667085;
+}
+
+.active-text {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.rejected-text {
+  color: #c62828;
+}
+
+.match-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.match-actions button {
+  width: 100px;
+}
+
+.waiting-label {
+  color: #667085;
+  font-size: 14px;
+}
+
+.active-label {
+  color: green;
+  font-weight: 600;
+}
+
+.rejected-label {
+  color: #c62828;
+}
+
+.user-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar img,
+.avatar-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.avatar-placeholder {
+  background: #dbe4f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.city {
+  font-size: 13px;
+  color: #667085;
+}
+
+button {
+  height: 34px;
+  min-width: 90px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #2f6fed, #5a8cff);
+  color: white;
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(47, 111, 237, 0.3);
+}
+
+.secondary-btn {
+  background: #eef3fb;
+  color: #2f3b52;
+}
+
+.secondary-btn:hover {
+  background: #e2e8f5;
+}
+
+.accept-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.accept-btn:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.reject-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.reject-btn:hover {
+  background: #fecaca;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.view-btn {
+  font-size: 12px;
+  padding: 5px 10px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.view-btn:hover {
+  background: #e2e8f0;
+}

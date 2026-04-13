@@ -1,0 +1,44 @@
+<div class="auth-page">
+    <div class="auth-card">
+        <h2>Register</h2>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input id="name" type="text" formControlName="name" />
+                <small *ngIf="registerForm.controls.name.touched && registerForm.controls.name.invalid">
+                    Name must contain at least 2 characters
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" formControlName="email" />
+                <small *ngIf="registerForm.controls.email.touched && registerForm.controls.email.invalid">
+                    Enter a valid email
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" formControlName="password" />
+                <small *ngIf="registerForm.controls.password.touched && registerForm.controls.password.invalid">
+                    Password must contain:
+                    at least 6 characters, 1 uppercase letter and 1 number
+                </small>
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+        <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+        <div class="auth-switch">
+            <p>
+                Already have an account?
+                <a routerLink="/login">Login</a>
+            </p>
+        </div>
+    </div>
+</div>

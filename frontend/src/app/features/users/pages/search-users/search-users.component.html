@@ -1,0 +1,116 @@
+<div class="search-users-page">
+    <div class="search-users-card">
+        <div class="page-header">
+            <h1>Search Users</h1>
+            <p>Find people by skill, category and city.</p>
+        </div>
+
+        <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-form">
+            <div class="form-group search-skill-group">
+                <label for="query">Search skill</label>
+                <input id="query" type="text" formControlName="query" placeholder="Type skill name"
+                    autocomplete="off" />
+
+                <div class="selected-skill" *ngIf="selectedSkill">
+                    <span>
+                        Selected: {{ selectedSkill.name }} • {{ selectedSkill.category }}
+                    </span>
+                    <button type="button" class="clear-btn" (click)="clearSelectedSkill()">
+                        ×
+                    </button>
+                </div>
+
+                <div class="skills-dropdown" *ngIf="shouldShowSkillsDropdown">
+                    <button type="button" class="skill-option" *ngFor="let skill of filteredSkills.slice(0, 8)"
+                        (click)="selectSkill(skill)">
+                        <span class="skill-name">{{ skill.name }}</span>
+                        <span class="skill-category">{{ skill.category }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" formControlName="category">
+                    <option value="">All categories</option>
+                    <option *ngFor="let category of categories" [value]="category">
+                        {{ category }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="city">City</label>
+                <input id="city" type="text" formControlName="city" placeholder="Enter city" />
+            </div>
+
+            <button type="submit" class="primary-btn" [disabled]="isSearching || isLoadingSkills">
+                {{ isSearching ? 'Searching...' : 'Search' }}
+            </button>
+        </form>
+
+        <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <p class="info-message" *ngIf="searchMessage">{{ searchMessage }}</p>
+
+        <div class="results-list" *ngIf="foundUsers.length > 0">
+            <div class="user-card" *ngFor="let user of foundUsers">
+                <div class="user-left">
+
+                    <!-- AVATAR -->
+                    <div class="avatar">
+                        <img *ngIf="user.avatarUrl; else placeholder" [src]="user.avatarUrl" />
+                        <ng-template #placeholder>
+                            <div class="avatar-placeholder">
+                                {{ user.name?.charAt(0) }}
+                            </div>
+                        </ng-template>
+                    </div>
+
+                    <!-- INFO -->
+                    <div class="user-info">
+                        <h3>{{ user.name }}</h3>
+                        <p class="city">{{ user.city || 'City not specified' }}</p>
+
+                        <!-- SKILLS -->
+                        <div class="skills-row">
+
+                            <div class="skills-inline">
+                                <span class="label teach">Teaches:</span>
+
+                                <span class="tag teach-tag" *ngFor="let skill of (user.teachSkills || []) | slice:0:3"
+                                    [class.match]="isMatchingSkill(skill.name)">
+                                    {{ skill.name }}
+                                </span>
+
+                                <span class="more-tag" *ngIf="(user.teachSkills?.length || 0) > 3">
+                                    +{{ (user.teachSkills?.length || 0) - 3 }}
+                                </span>
+                            </div>
+
+                            <div class="skills-inline">
+                                <span class="label learn">Learns:</span>
+
+                                <span class="tag learn-tag" *ngFor="let skill of (user.learnSkills || []) | slice:0:3">
+                                    {{ skill.name }}
+                                </span>
+
+                                <span class="more-tag" *ngIf="(user.learnSkills?.length || 0) > 3">
+                                    +{{ (user.learnSkills?.length || 0) - 3 }}
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="user-actions">
+                    <button type="button" class="secondary-btn" [routerLink]="['/users', user.id] ">View
+                        Profile</button>
+                    <button type="button" class="primary-btn">Match</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

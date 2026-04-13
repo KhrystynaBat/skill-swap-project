@@ -39,6 +39,11 @@ namespace SkillSwap.Api.Controllers
             if (exists)
                 return BadRequest("Email already exists");
 
+            if (string.IsNullOrWhiteSpace(dto.Password) || dto.Password.Length < 6 || !System.Text.RegularExpressions.Regex.IsMatch(dto.Password, @"^(?=.*[A-Z])(?=.*\d).+$"))
+            {
+                return BadRequest("Password must be at least 6 characters long, contain one uppercase letter and one number.");
+            }
+
             var user = new User
             {
                 Name = dto.Name,
@@ -86,7 +91,7 @@ namespace SkillSwap.Api.Controllers
             {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Role, user.Role) 
+        new Claim(ClaimTypes.Role, user.Role)
     };
 
             var key = new SymmetricSecurityKey(
@@ -105,7 +110,7 @@ namespace SkillSwap.Api.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-    [Authorize]
+        [Authorize]
         [HttpGet("me")]
         public IActionResult GetMe()
         {

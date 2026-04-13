@@ -1,0 +1,181 @@
+<div class="profile-page">
+    <div class="profile-card" *ngIf="!isLoading && profile; else loadingOrError">
+        <div class="profile-header">
+            <div class="avatar">
+                <img *ngIf="profile.user.avatarUrl; else defaultAvatar" [src]="profile.user.avatarUrl"
+                    alt="User avatar" />
+
+                <ng-template #defaultAvatar>
+                    <div class="avatar-placeholder">
+                        {{ profile.user.name.charAt(0).toUpperCase() }}
+                    </div>
+                </ng-template>
+            </div>
+
+            <div class="profile-main-info">
+                <h1>{{ profile.user.name }}</h1>
+                <p class="email">{{ profile.user.email }}</p>
+                <p class="role">Role: {{ profile.user.role }}</p>
+                <p class="city-short">{{ profile.user.city || 'City not specified' }}</p>
+            </div>
+
+            <button class="edit-btn" (click)="goToEditProfile()">
+                Edit Profile
+            </button>
+        </div>
+
+        <div class="profile-section">
+            <h3>About</h3>
+            <p>{{ profile.user.bio || 'Biography not yet added.' }}</p>
+        </div>
+
+        <div class="profile-grid">
+            <div class="info-box">
+                <div class="box-header">
+                    <h3>I can teach</h3>
+                    <button class="small-btn" (click)="openAddSkillModal()">+ Add</button>
+                </div>
+
+                <div class="tags-list" *ngIf="skills.length > 0; else noSkills">
+                    <div class="tag-item" *ngFor="let skill of skills">
+                        <div class="tag-title">{{ skill.name }}</div>
+                        <div class="tag-subtitle">
+                            {{ skill.category }} • Level {{ getLevelLabel(skill.level) }}
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template #noSkills>
+                    <p class="empty-text">No skills added yet.</p>
+                </ng-template>
+            </div>
+
+            <div class="info-box">
+                <div class="box-header">
+                    <h3>I want to learn</h3>
+                    <button class="small-btn" (click)="openAddInterestModal()">+ Add</button>
+                </div>
+
+                <div class="tags-list" *ngIf="interests.length > 0; else noInterests">
+                    <div class="tag-item" *ngFor="let interest of interests">
+                        <div class="tag-title">{{ interest.name }}</div>
+                        <div class="tag-subtitle">
+                            {{ interest.category }} • Priority {{ getPriorityLabel(interest.priority)}}
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template #noInterests>
+                    <p class="empty-text">No interests added yet.</p>
+                </ng-template>
+            </div>
+        </div>
+
+        <div class="profile-grid bottom-grid">
+            <div class="info-box">
+                <h3>Rating</h3>
+                <p>Average: {{ profile.rating.average }}</p>
+                <p>Reviews count: {{ profile.rating.count }}</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Created at</h3>
+                <p>{{ profile.user.createdAt | date:'medium' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #loadingOrError>
+        <div class="state-card" *ngIf="isLoading">
+            <p>Loading profile...</p>
+        </div>
+
+        <div class="state-card error" *ngIf="!isLoading && errorMessage">
+            <p>{{ errorMessage }}</p>
+        </div>
+    </ng-template>
+</div>
+
+<div class="modal-backdrop" *ngIf="isAddSkillModalOpen" (click)="closeAddSkillModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <h2>Add skill</h2>
+
+        <form [formGroup]="addSkillForm" (ngSubmit)="submitAddSkill()">
+            <div class="form-group">
+                <label for="skillId">Choose skill</label>
+                <select id="skillId" formControlName="skillId">
+                    <option [ngValue]="null">Select a skill</option>
+                    <option *ngFor="let skill of availableSkills" [ngValue]="skill.id">
+                        {{ skill.name }} ({{ skill.category }})
+                    </option>
+                </select>
+
+                <small *ngIf="addSkillForm.controls.skillId.touched && addSkillForm.controls.skillId.invalid">
+                    Please select a skill
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="level">Level</label>
+                <select id="level" formControlName="level">
+                    <option [ngValue]="1">Beginner</option>
+                    <option [ngValue]="2">Elementary</option>
+                    <option [ngValue]="3">Intermediate</option>
+                    <option [ngValue]="4">Advanced</option>
+                    <option [ngValue]="5">Expert</option>
+                </select>
+                <small *ngIf="addSkillForm.controls.level.touched && addSkillForm.controls.level.invalid">
+                    Level must be between 1 and 5
+                </small>
+            </div>
+
+            <p class="modal-message" *ngIf="skillMessage">{{ skillMessage }}</p>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-btn" (click)="closeAddSkillModal()">Cancel</button>
+                <button type="submit" class="primary-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="isAddInterestModalOpen" (click)="closeAddInterestModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <h2>Add interest</h2>
+
+        <form [formGroup]="addInterestForm" (ngSubmit)="submitAddInterest()">
+            <div class="form-group">
+                <label for="interestSkillId">Choose skill</label>
+                <select id="interestSkillId" formControlName="skillId">
+                    <option [ngValue]="null">Select a skill</option>
+                    <option *ngFor="let skill of availableSkills" [ngValue]="skill.id">
+                        {{ skill.name }} ({{ skill.category }})
+                    </option>
+                </select>
+
+                <small *ngIf="addInterestForm.controls.skillId.touched && addInterestForm.controls.skillId.invalid">
+                    Please select a skill
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <select id="priority" formControlName="priority">
+                    <option [ngValue]="1">Low interest</option>
+                    <option [ngValue]="2">Medium interest</option>
+                    <option [ngValue]="3">High interest</option>
+                </select>
+                <small *ngIf="addInterestForm.controls.priority.touched && addInterestForm.controls.priority.invalid">
+                    Priority must be between 1 and 3
+                </small>
+            </div>
+
+            <p class="modal-message" *ngIf="interestMessage">{{ interestMessage }}</p>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-btn" (click)="closeAddInterestModal()">Cancel</button>
+                <button type="submit" class="primary-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

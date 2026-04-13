@@ -1,0 +1,84 @@
+<div class="profile-page">
+    <div class="profile-card" *ngIf="!isLoading && user; else loadingOrError">
+
+        <div class="profile-header">
+
+            <div class="avatar">
+                <img *ngIf="user.avatarUrl; else defaultAvatar" [src]="user.avatarUrl" alt="User avatar" />
+
+                <ng-template #defaultAvatar>
+                    <div class="avatar-placeholder">
+                        {{ user.name?.charAt(0)?.toUpperCase() || 'U' }}
+                    </div>
+                </ng-template>
+            </div>
+
+            <div class="profile-main-info">
+                <h1>{{ user.name }}</h1>
+                <p class="email">{{ user.email }}</p>
+                <p class="role">Role: {{ user.role }}</p>
+                <p class="city-short">{{ user.city || 'City not specified' }}</p>
+            </div>
+
+            <div class="profile-actions">
+                <button class="secondary-btn">Message</button>
+                <button class="primary-btn" (click)="createMatch(user.id)">Match</button>
+            </div>
+
+        </div>
+
+        <!-- ABOUT -->
+        <div class="profile-section">
+            <h3>About</h3>
+            <p>{{ user.bio || 'Biography not added yet.' }}</p>
+        </div>
+
+        <!-- SKILLS -->
+        <div class="profile-grid">
+
+            <!-- TEACH -->
+            <div class="info-box">
+                <div class="box-header">
+                    <h3>I can teach</h3>
+                </div>
+
+                <div *ngIf="user.teachSkills?.length > 0; else noTeachSkills" class="tags-list">
+                    <div class="tag-item" *ngFor="let skill of user.teachSkills">
+                        <div class="tag-title">{{ skill.name }}</div>
+                    </div>
+                </div>
+
+                <ng-template #noTeachSkills>
+                    <p class="empty-text">No skills added yet.</p>
+                </ng-template>
+            </div>
+
+            <!-- LEARN -->
+            <div class="info-box">
+                <div class="box-header">
+                    <h3>I want to learn</h3>
+                </div>
+
+                <div *ngIf="user.learnSkills?.length > 0; else noLearnSkills" class="tags-list">
+                    <div class="tag-item" *ngFor="let skill of user.learnSkills">
+                        <div class="tag-title">{{ skill.name }}</div>
+                    </div>
+                </div>
+
+                <ng-template #noLearnSkills>
+                    <p class="empty-text">No interests added yet.</p>
+                </ng-template>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- LOADING -->
+    <ng-template #loadingOrError>
+        <div class="state-card">
+            <p *ngIf="isLoading">Loading profile...</p>
+            <p *ngIf="!isLoading">Failed to load profile.</p>
+        </div>
+    </ng-template>
+</div>

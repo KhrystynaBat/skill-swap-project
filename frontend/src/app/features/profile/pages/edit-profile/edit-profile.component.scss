@@ -1,0 +1,176 @@
+.edit-profile-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.edit-profile-card {
+  max-height: 70vh;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 760px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 32px;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 32px;
+}
+
+.top-section {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.avatar-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-preview img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #dbe3ee;
+}
+
+.avatar-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.upload-btn {
+  background: #2f6fed;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.upload-btn:hover {
+  background: #1e4fd1;
+  transform: translateY(-1px);
+}
+
+.main-info {
+  flex: 1;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2f3b52;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d0d7e2;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #2f6fed;
+  box-shadow: 0 0 0 2px rgba(47, 111, 237, 0.15);
+}
+
+small {
+  color: #c62828;
+  margin-top: 6px;
+}
+
+.messages {
+  margin-top: 8px;
+}
+
+.success {
+  color: #2e7d32;
+}
+
+.error {
+  color: #c62828;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.primary-btn,
+.secondary-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.primary-btn {
+  background: #2f6fed;
+  color: white;
+}
+
+.primary-btn:hover {
+  background: #1e4fd1;
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background: #e9eef7;
+  color: #2f3b52;
+}
+
+.secondary-btn:hover {
+  background: #dbe3ee;
+}

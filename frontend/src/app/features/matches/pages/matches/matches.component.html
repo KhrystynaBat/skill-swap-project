@@ -1,0 +1,99 @@
+<div class="matches-page">
+    <div class="matches-card">
+
+        <h1>Your Matches</h1>
+
+        <div *ngIf="isLoading">Loading...</div>
+        <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+        <div class="matches-list" *ngIf="!isLoading && matches.length">
+
+            <div class="match-card" *ngFor="let match of matches">
+
+                <div class="match-info">
+                    <div class="user-block" *ngIf="usersMap[getOtherUserId(match)] as user">
+
+                        <div class="avatar">
+                            <img *ngIf="user.avatarUrl; else defaultAvatar" [src]="user.avatarUrl" />
+
+                            <ng-template #defaultAvatar>
+                                <div class="avatar-placeholder">
+                                    {{ user.name?.charAt(0) }}
+                                </div>
+                            </ng-template>
+                        </div>
+
+                        <div class="user-info">
+                            <p class="user-name">{{ user.name }}</p>
+                            <p class="city">{{ user.city || 'City not specified' }}</p>
+                        </div>
+
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="status">
+
+                        <!-- INCOMING -->
+                        <ng-container *ngIf="match.status === 'pending' && isIncoming(match)">
+                            <span class="incoming-text">Wants to match with you</span>
+                        </ng-container>
+
+                        <!-- OUTGOING -->
+                        <ng-container *ngIf="match.status === 'pending' && isOutgoing(match)">
+                            <span class="waiting-text">Waiting for response</span>
+                        </ng-container>
+
+                        <!-- ACTIVE -->
+                        <ng-container *ngIf="match.status === 'active'">
+                            <span class="active-text">Matched ✔</span>
+                        </ng-container>
+
+                        <!-- REJECTED -->
+                        <ng-container *ngIf="match.status === 'rejected'">
+                            <span class="rejected-text">Rejected</span>
+                        </ng-container>
+
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="match-actions">
+
+                    <!-- INCOMING -->
+                    <ng-container *ngIf="match.status === 'pending' && isIncoming(match)">
+                        <button class="accept-btn" (click)="acceptMatch(match.id)"
+                            [disabled]="loadingMatchId === match.id">
+                            {{ loadingMatchId === match.id ? 'Accepting...' : 'Accept' }}
+                        </button>
+                        <button class="reject-btn" (click)="rejectMatch(match.id)"
+                            [disabled]="loadingMatchId === match.id">
+                            {{ loadingMatchId === match.id ? 'Rejecting...' : 'Reject' }}
+                        </button>
+                    </ng-container>
+
+                    <!-- OUTGOING -->
+                    <span *ngIf="match.status === 'pending' && isOutgoing(match)" class="waiting-label">
+                        ⏳ Requested
+                    </span>
+
+                    <!-- ACTIVE -->
+                    <ng-container *ngIf="match.status === 'active'">
+                        <button class="primary-btn">Message</button>
+                        <button class="view-btn" [routerLink]="['/users', getOtherUserId(match)]">
+                            View Profile
+                        </button>
+                    </ng-container>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <p *ngIf="!isLoading && matches.length === 0">
+            No matches yet
+        </p>
+
+    </div>
+</div>
