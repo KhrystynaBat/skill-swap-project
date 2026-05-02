@@ -61,7 +61,7 @@
                         <img *ngIf="user.avatarUrl; else placeholder" [src]="user.avatarUrl" />
                         <ng-template #placeholder>
                             <div class="avatar-placeholder">
-                                {{ user.name?.charAt(0) }}
+                                {{ user.name.charAt(0) }}
                             </div>
                         </ng-template>
                     </div>
@@ -82,8 +82,8 @@
                                     {{ skill.name }}
                                 </span>
 
-                                <span class="more-tag" *ngIf="(user.teachSkills?.length || 0) > 3">
-                                    +{{ (user.teachSkills?.length || 0) - 3 }}
+                                <span class="more-tag" *ngIf="user.teachSkills.length > 3">
+                                    +{{ user.teachSkills.length - 3 }}
                                 </span>
                             </div>
 
@@ -94,8 +94,8 @@
                                     {{ skill.name }}
                                 </span>
 
-                                <span class="more-tag" *ngIf="(user.learnSkills?.length || 0) > 3">
-                                    +{{ (user.learnSkills?.length || 0) - 3 }}
+                                <span class="more-tag" *ngIf="user.learnSkills.length > 3">
+                                    +{{ user.learnSkills.length - 3 }}
                                 </span>
                             </div>
 

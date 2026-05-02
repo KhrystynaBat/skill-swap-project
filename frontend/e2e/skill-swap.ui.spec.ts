@@ -99,7 +99,10 @@ test('search page finds user and creates match from the UI', async ({ page }) =>
   await page.getByLabel('Search skill').fill('Photo');
   await page.getByRole('button', { name: /Photography/ }).click();
   await page.locator('form').getByRole('button', { name: 'Search' }).click();
-  await page.getByRole('button', { name: 'Match' }).click();
+  await page.locator('.user-card').filter({ hasText: 'Khrystyna' }).getByRole('button', {
+    name: 'Match',
+    exact: true,
+  }).click();
 
   await expect(page).toHaveURL(/\/matches$/);
 });
