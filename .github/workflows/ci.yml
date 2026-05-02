@@ -2,11 +2,11 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [main, master, develop]
   pull_request:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: "ci-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19
+          node-version: "20.19"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -49,13 +49,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: coverage
+          path: frontend/coverage
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
       - name: Run UI tests
         run: npm run test:ui
+
 
   backend-tests:
     name: Backend (.NET)
@@ -72,7 +73,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: "8.0.x"
 
       - name: Restore backend
         run: dotnet restore
@@ -87,7 +88,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: TestResults
+          path: backend/TestResults
+
 
   quality:
     name: Quality Gate
@@ -96,7 +98,8 @@ jobs:
 
     steps:
       - name: CI Success
-        run: echo All checks passed
+        run: echo "All checks passed"
+
 
   version:
     name: Versioning
@@ -107,4 +110,5 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate version
-        run: echo "Version: 1.0.${{ github.run_number }}"
+        run: |
+          echo "Version: 1.0.${{ github.run_number }}"
