@@ -79,8 +79,18 @@ jobs:
 
       - name: Build info
         run: |
-          echo "Frontend build completed"
-          echo "Version: ${{ needs.version.outputs.version }}"
+          echo "Version: ${{ needs.version.outputs.version }}" > build-info.txt
+          echo "Build time: $(date -u)" >> build-info.txt
+          echo "Node version: $(node -v)" >> build-info.txt
+          echo "Branch: ${{ github.ref_name }}" >> build-info.txt
+          echo "Commit: ${{ github.sha }}" >> build-info.txt
+          cat build-info.txt
+
+      - name: Upload frontend build report
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-report
+          path: frontend/build-info.txt
 
 
   backend-tests:
@@ -128,8 +138,18 @@ jobs:
 
       - name: Build info
         run: |
-          echo "Backend build completed"
-          echo "Version: ${{ needs.version.outputs.version }}"
+          echo "Version: ${{ needs.version.outputs.version }}" > build-info.txt
+          echo "Build time: $(date -u)" >> build-info.txt
+          echo "Dotnet version: $(dotnet --version)" >> build-info.txt
+          echo "Branch: ${{ github.ref_name }}" >> build-info.txt
+          echo "Commit: ${{ github.sha }}" >> build-info.txt
+          cat build-info.txt
+
+      - name: Upload backend build report
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build-report
+          path: backend/build-info.txt
 
 
   quality:
