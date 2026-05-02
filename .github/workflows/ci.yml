@@ -11,9 +11,26 @@ concurrency:
 
 jobs:
 
+  version:
+    name: Versioning
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.set_version.outputs.VERSION }}
+
+    steps:
+      - name: Generate version
+        id: set_version
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+
+
   frontend-tests:
     name: Frontend (Angular)
     runs-on: ubuntu-latest
+    needs: version
 
     defaults:
       run:
@@ -45,11 +62,11 @@ jobs:
       - name: Run unit tests with coverage
         run: npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
 
-      - name: Upload frontend coverage
+      - name: Upload frontend coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage
-          path: frontend/coverage
+          name: frontend-coverage-report
+          path: frontend/coverage/lcov-report
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -57,10 +74,16 @@ jobs:
       - name: Run UI tests
         run: npm run test:ui
 
+      - name: Build info
+        run: |
+          echo "Frontend build completed"
+          echo "Version: ${{ needs.version.outputs.version }}"
+
 
   backend-tests:
     name: Backend (.NET)
     runs-on: ubuntu-latest
+    needs: version
 
     defaults:
       run:
@@ -84,31 +107,25 @@ jobs:
       - name: Run backend tests with coverage
         run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage"
 
-      - name: Upload backend coverage
+      - name: Upload backend coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: backend-coverage
+          name: backend-coverage-report
           path: backend/TestResults
+
+      - name: Build info
+        run: |
+          echo "Backend build completed"
+          echo "Version: ${{ needs.version.outputs.version }}"
 
 
   quality:
     name: Quality Gate
     runs-on: ubuntu-latest
-    needs: [frontend-tests, backend-tests]
+    needs: [frontend-tests, backend-tests, version]
 
     steps:
       - name: CI Success
-        run: echo "All checks passed"
-
-
-  version:
-    name: Versioning
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Generate version
         run: |
-          echo "Version: 1.0.${{ github.run_number }}"
+          echo "All checks passed"
+          echo "Version: ${{ needs.version.outputs.version }}"
