@@ -44,30 +44,18 @@ jobs:
 
       - name: Run unit tests with coverage
         run: npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
-      
+
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: frontend/coverage
+          path: coverage
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
       - name: Run UI tests
         run: npm run test:ui
-
-      - name: Upload frontend coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-coverage
-          path: frontend/coverage
-
-      - name: Upload frontend test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-test-results
-          path: frontend/test-results
 
   backend-tests:
     name: Backend (.NET)
@@ -99,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: backend/**/TestResults/**
+          path: .
 
   quality:
     name: Quality Gate
@@ -109,13 +97,14 @@ jobs:
     steps:
       - name: CI Success
         run: echo "All checks passed"
-  
+
   version:
     name: Versioning
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Generate version
         run: echo "Version: 1.0.${{ github.run_number }}"
