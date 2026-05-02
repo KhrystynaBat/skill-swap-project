@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../../../core/services/users.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RouterModule } from '@angular/router';
@@ -7,7 +8,7 @@ import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-matches',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './matches.component.html',
   styleUrl: './matches.component.scss',
 })
@@ -22,6 +23,10 @@ export class MatchesComponent implements OnInit {
   currentUserId: number | null = null;
   usersMap: { [id: number]: any } = {};
   loadingMatchId: number | null = null;
+  reviewMatchId: number | null = null;
+  reviewRating = 5;
+  reviewComment = '';
+  reviewMessage = '';
 
   ngOnInit(): void {
     this.currentUserId = this.authService.getUserId();
@@ -61,15 +66,20 @@ export class MatchesComponent implements OnInit {
     });
   }
 
-  acceptMatch(matchId: number) {
+  acceptMatch(match: any) {
+    const matchId = match.id;
+    const otherUserId = this.getOtherUserId(match);
+
     this.loadingMatchId = matchId;
 
     this.usersService.updateMatchStatus(matchId, 'active').subscribe({
       next: () => {
-        this.loadMatches();
+        match.status = 'active';
         this.loadingMatchId = null;
+        this.loadMatches();
       },
-      error: () => {
+      error: (error) => {
+        this.errorMessage = this.getErrorMessage(error, 'Failed to accept match');
         this.loadingMatchId = null;
       },
     });
@@ -89,6 +99,41 @@ export class MatchesComponent implements OnInit {
     });
   }
 
+  openFinishMatch(match: any): void {
+    this.reviewMatchId = match.id;
+    this.reviewRating = 5;
+    this.reviewComment = '';
+    this.reviewMessage = '';
+  }
+
+  cancelFinishMatch(): void {
+    this.reviewMatchId = null;
+    this.reviewComment = '';
+    this.reviewMessage = '';
+  }
+
+  submitReview(match: any): void {
+    const targetUserId = this.getOtherUserId(match);
+    this.loadingMatchId = match.id;
+    this.reviewMessage = '';
+
+    this.usersService
+      .createUserReview(targetUserId, this.reviewRating, this.reviewComment.trim())
+      .subscribe({
+        next: () => {
+          match.status = 'completed';
+          this.loadingMatchId = null;
+          this.reviewMatchId = null;
+          this.reviewComment = '';
+          this.loadMatches();
+        },
+        error: (error) => {
+          this.loadingMatchId = null;
+          this.reviewMessage = this.getErrorMessage(error, 'Failed to finish match');
+        },
+      });
+  }
+
   getOtherUserId(match: any): number {
     return match.userAId === this.currentUserId ? match.userBId : match.userAId;
   }
@@ -99,5 +144,17 @@ export class MatchesComponent implements OnInit {
 
   isOutgoing(match: any): boolean {
     return match.userAId === this.currentUserId;
+  }
+
+  private getErrorMessage(error: any, fallback: string): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+
+    if (error?.error?.title) {
+      return error.error.title;
+    }
+
+    return fallback;
   }
 }

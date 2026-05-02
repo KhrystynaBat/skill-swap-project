@@ -47,7 +47,8 @@
                 UserAId = match.UserAId,
                 UserBId = match.UserBId,
                 ScheduledTime = dto.ScheduledTime,
-                Status = "requested"
+                Status = "requested",
+                RowVersion = BitConverter.GetBytes(DateTime.UtcNow.Ticks)
             };
 
             _context.Exchanges.Add(exchange);

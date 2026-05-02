@@ -36,14 +36,30 @@ export class UsersService {
   }
 
   getMyMatches() {
-    return this.http.get<any[]>('http://localhost:5194/api/match/my');
+    return this.http.get<any[]>(`${this.apiUrl}/api/match/my`);
   }
 
   updateMatchStatus(matchId: number, status: string) {
-    return this.http.put(`http://localhost:5194/api/match/${matchId}/status?status=${status}`, {});
+    return this.http.put(`${this.apiUrl}/api/match/${matchId}/status?status=${status}`, {}, {
+      responseType: 'text',
+    });
   }
 
   createMatch(targetUserId: number) {
-    return this.http.post(`http://localhost:5194/api/match/${targetUserId}`, {});
+    return this.http.post(`${this.apiUrl}/api/match/${targetUserId}`, {}, {
+      responseType: 'text',
+    });
+  }
+
+  getUserReviews(userId: number) {
+    return this.http.get<any[]>(`${this.apiUrl}/api/review/user/${userId}`);
+  }
+
+  createUserReview(userId: number, rating: number, comment: string) {
+    return this.http.post(
+      `${this.apiUrl}/api/review/user/${userId}`,
+      { rating, comment },
+      { responseType: 'text' },
+    );
   }
 }

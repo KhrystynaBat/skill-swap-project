@@ -53,6 +53,11 @@
                             <span class="rejected-text">Rejected</span>
                         </ng-container>
 
+                        <!-- COMPLETED -->
+                        <ng-container *ngIf="match.status === 'completed'">
+                            <span class="completed-text">Completed</span>
+                        </ng-container>
+
                     </div>
                 </div>
 
@@ -61,7 +66,7 @@
 
                     <!-- INCOMING -->
                     <ng-container *ngIf="match.status === 'pending' && isIncoming(match)">
-                        <button class="accept-btn" (click)="acceptMatch(match.id)"
+                        <button class="accept-btn" (click)="acceptMatch(match)"
                             [disabled]="loadingMatchId === match.id">
                             {{ loadingMatchId === match.id ? 'Accepting...' : 'Accept' }}
                         </button>
@@ -78,13 +83,40 @@
 
                     <!-- ACTIVE -->
                     <ng-container *ngIf="match.status === 'active'">
-                        <button class="primary-btn">Message</button>
-                        <button class="view-btn" [routerLink]="['/users', getOtherUserId(match)]">
-                            View Profile
+                        <button class="primary-btn" [routerLink]="['/chat', getOtherUserId(match)]">Message</button>
+                        <button class="finish-btn" (click)="openFinishMatch(match)">
+                            Finish match
                         </button>
                     </ng-container>
 
                 </div>
+
+                <form class="finish-form" *ngIf="reviewMatchId === match.id" (ngSubmit)="submitReview(match)">
+                    <label for="rating-{{ match.id }}">Rating</label>
+                    <select id="rating-{{ match.id }}" name="rating-{{ match.id }}" [(ngModel)]="reviewRating">
+                        <option [ngValue]="5">5 - Excellent</option>
+                        <option [ngValue]="4">4 - Good</option>
+                        <option [ngValue]="3">3 - Okay</option>
+                        <option [ngValue]="2">2 - Poor</option>
+                        <option [ngValue]="1">1 - Bad</option>
+                    </select>
+
+                    <label for="comment-{{ match.id }}">Comment</label>
+                    <textarea id="comment-{{ match.id }}" name="comment-{{ match.id }}" [(ngModel)]="reviewComment"
+                        placeholder="Write a short review..."></textarea>
+
+                    <div class="finish-actions">
+                        <button class="accept-btn" type="submit" [disabled]="loadingMatchId === match.id">
+                            {{ loadingMatchId === match.id ? 'Saving...' : 'Save review' }}
+                        </button>
+                        <button class="reject-btn" type="button" (click)="cancelFinishMatch()"
+                            [disabled]="loadingMatchId === match.id">
+                            Cancel
+                        </button>
+                    </div>
+
+                    <p class="review-error" *ngIf="reviewMessage">{{ reviewMessage }}</p>
+                </form>
 
 
             </div>

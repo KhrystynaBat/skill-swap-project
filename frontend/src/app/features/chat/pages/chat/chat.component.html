@@ -1,0 +1,96 @@
+<div class="chat-page">
+    <div class="chat-shell">
+        <aside class="conversations-panel">
+            <div class="panel-header">
+                <h1>Messages</h1>
+            </div>
+
+            <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+            <div class="conversation-list" *ngIf="!isLoadingConversations; else conversationsLoading">
+                <button class="conversation-item" *ngFor="let conversation of conversations; trackBy: trackConversation"
+                    [class.active]="conversation.partnerId === selectedPartnerId"
+                    (click)="selectConversation(conversation)">
+                    <div class="conversation-avatar">
+                        <img *ngIf="conversation.partnerAvatarUrl; else conversationAvatarPlaceholder"
+                            [src]="conversation.partnerAvatarUrl" alt="User avatar" />
+                        <ng-template #conversationAvatarPlaceholder>
+                            <span>{{ conversation.partnerName.charAt(0).toUpperCase() }}</span>
+                        </ng-template>
+                    </div>
+
+                    <div class="conversation-copy">
+                        <div class="conversation-top">
+                            <strong>{{ conversation.partnerName }}</strong>
+                            <span>{{ formatTime(conversation.lastMessageAt) }}</span>
+                        </div>
+                        <p>{{ conversation.lastMessage }}</p>
+                    </div>
+                </button>
+
+                <div class="empty-state" *ngIf="conversations.length === 0">
+                    <p>No conversations yet.</p>
+                </div>
+            </div>
+
+            <ng-template #conversationsLoading>
+                <div class="empty-state">
+                    <p>Loading conversations...</p>
+                </div>
+            </ng-template>
+        </aside>
+
+        <section class="messages-panel" *ngIf="selectedPartnerId; else noConversationSelected">
+            <header class="messages-header">
+                <div class="conversation-avatar large">
+                    <img *ngIf="selectedPartnerAvatarUrl; else selectedAvatarPlaceholder"
+                        [src]="selectedPartnerAvatarUrl" alt="User avatar" />
+                    <ng-template #selectedAvatarPlaceholder>
+                        <span>{{ selectedPartnerName.charAt(0).toUpperCase() || 'U' }}</span>
+                    </ng-template>
+                </div>
+                <div>
+                    <h2>{{ selectedPartnerName || 'Conversation' }}</h2>
+                    <a [routerLink]="['/users', selectedPartnerId]">View profile</a>
+                </div>
+            </header>
+
+            <div class="messages-list" #messagesList>
+                <div *ngIf="isLoadingMessages" class="empty-state">
+                    <p>Loading messages...</p>
+                </div>
+
+                <ng-container *ngIf="!isLoadingMessages">
+                    <div class="message-row" *ngFor="let message of messages; trackBy: trackMessage"
+                        [class.mine]="message.isMine">
+                        <div class="message-bubble">
+                            <p>{{ message.text }}</p>
+                            <time>{{ formatTime(message.timestamp) }}</time>
+                        </div>
+                    </div>
+
+                    <div class="empty-state" *ngIf="messages.length === 0">
+                        <p>Start the conversation.</p>
+                    </div>
+                </ng-container>
+            </div>
+
+            <form class="message-form" (ngSubmit)="sendMessage()">
+                <input type="text" name="message" [(ngModel)]="draft" placeholder="Write a message..."
+                    autocomplete="off" [disabled]="isSending" />
+                <button type="submit" [disabled]="!draft.trim() || isSending">
+                    {{ isSending ? 'Sending...' : 'Send' }}
+                </button>
+            </form>
+        </section>
+
+        <ng-template #noConversationSelected>
+            <section class="messages-panel placeholder-panel">
+                <div class="empty-state">
+                    <h2>Select a conversation</h2>
+                    <p>Open a match or user profile to start messaging.</p>
+                </div>
+            </section>
+        </ng-template>
+    </div>
+</div>

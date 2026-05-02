@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UsersService } from '../../../../core/services/users.service';
 
 @Component({
@@ -12,9 +12,11 @@ import { UsersService } from '../../../../core/services/users.service';
 })
 export class UserProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private usersService = inject(UsersService);
 
   user: any = null;
+  reviews: any[] = [];
   isLoading = true;
   errorMessage = '';
 
@@ -25,6 +27,7 @@ export class UserProfileComponent implements OnInit {
       next: (res) => {
         this.user = res;
         this.isLoading = false;
+        this.loadReviews(id);
       },
       error: (error) => {
         console.error('Load user profile error:', error);
@@ -37,11 +40,38 @@ export class UserProfileComponent implements OnInit {
   createMatch(userId: number) {
     this.usersService.createMatch(userId).subscribe({
       next: () => {
-        alert('Match request sent');
+        this.router.navigate(['/matches']);
       },
       error: (err) => {
-        alert(err.error || 'Error');
+        alert(this.getErrorMessage(err, 'Error'));
       },
     });
+  }
+
+  openChat(userId: number): void {
+    this.router.navigate(['/chat', userId]);
+  }
+
+  private loadReviews(userId: number): void {
+    this.usersService.getUserReviews(userId).subscribe({
+      next: (reviews) => {
+        this.reviews = reviews;
+      },
+      error: (error) => {
+        console.error('Load reviews error:', error);
+      },
+    });
+  }
+
+  private getErrorMessage(error: any, fallback: string): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+
+    if (error?.error?.title) {
+      return error.error.title;
+    }
+
+    return fallback;
   }
 }

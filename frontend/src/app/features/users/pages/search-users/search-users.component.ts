@@ -8,7 +8,7 @@ import { SearchUser } from '../../../../models/search-user.model';
 import { SkillsService } from '../../../../core/services/skills.service';
 import { UsersService } from '../../../../core/services/users.service';
 
-import { RouterModule, Routes } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-search-users',
@@ -21,6 +21,7 @@ export class SearchUsersComponent implements OnInit {
   private fb = inject(FormBuilder);
   private skillsService = inject(SkillsService);
   private usersService = inject(UsersService);
+  private router = inject(Router);
 
   availableSkills: Skill[] = [];
   filteredSkills: Skill[] = [];
@@ -31,6 +32,7 @@ export class SearchUsersComponent implements OnInit {
 
   isLoadingSkills = true;
   isSearching = false;
+  matchingUserId: number | null = null;
   errorMessage = '';
   searchMessage = '';
 
@@ -179,5 +181,34 @@ export class SearchUsersComponent implements OnInit {
 
   isMatchingSkill(skillName: string): boolean {
     return this.selectedSkill?.name.toLowerCase() === skillName.toLowerCase();
+  }
+
+  createMatch(userId: number): void {
+    this.matchingUserId = userId;
+    this.errorMessage = '';
+    this.searchMessage = '';
+
+    this.usersService.createMatch(userId).subscribe({
+      next: () => {
+        this.matchingUserId = null;
+        this.router.navigate(['/matches']);
+      },
+      error: (error) => {
+        this.matchingUserId = null;
+        this.errorMessage = this.getErrorMessage(error, 'Failed to create match.');
+      },
+    });
+  }
+
+  private getErrorMessage(error: any, fallback: string): string {
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+
+    if (error?.error?.title) {
+      return error.error.title;
+    }
+
+    return fallback;
   }
 }

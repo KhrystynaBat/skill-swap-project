@@ -30,14 +30,26 @@ export class AuthService {
   }
 
   saveToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+    sessionStorage.setItem(this.tokenKey, token);
+    localStorage.removeItem(this.tokenKey);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const sessionToken = sessionStorage.getItem(this.tokenKey);
+
+    if (sessionToken) {
+      return sessionToken;
+    }
+
+    if (localStorage.getItem(this.tokenKey)) {
+      localStorage.removeItem(this.tokenKey);
+    }
+
+    return null;
   }
 
   logout(): void {
+    sessionStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.tokenKey);
   }
 
@@ -52,9 +64,10 @@ export class AuthService {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
 
-      console.log('JWT payload:', payload);
-
-      const id = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      const id =
+        payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+        payload.nameid ||
+        payload.sub;
 
       return id ? Number(id) : null;
     } catch {

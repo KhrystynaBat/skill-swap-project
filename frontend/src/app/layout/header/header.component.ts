@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ChatService } from '../../core/services/chat.service';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class HeaderComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
+  private chatService = inject(ChatService);
 
   isLoggedIn(): boolean {
     return !!this.authService.getToken();
@@ -39,6 +41,9 @@ export class HeaderComponent {
   }
 
   logout() {
+    this.chatService.stopConnection().catch((error) => {
+      console.warn('Failed to stop chat connection.', error);
+    });
     this.authService.logout();
     this.router.navigate(['/']);
   }

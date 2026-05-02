@@ -27,6 +27,7 @@ h1 {
 
 .match-card {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
@@ -62,6 +63,11 @@ h1 {
 
 .rejected-text {
   color: #c62828;
+}
+
+.completed-text {
+  color: #475569;
+  font-weight: 600;
 }
 
 .match-actions {
@@ -184,4 +190,60 @@ button:disabled {
 
 .view-btn:hover {
   background: #e2e8f0;
+}
+
+.finish-btn {
+  font-size: 12px;
+  padding: 5px 10px;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.finish-btn:hover {
+  background: #fde68a;
+}
+
+.finish-form {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e6edf7;
+}
+
+.finish-form label {
+  color: #30384a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.finish-form select,
+.finish-form textarea {
+  width: 100%;
+  border: 1px solid #dce4f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.finish-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.finish-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.finish-actions button {
+  width: auto;
+}
+
+.review-error {
+  margin: 0;
+  color: #c62828;
+  font-size: 13px;
 }

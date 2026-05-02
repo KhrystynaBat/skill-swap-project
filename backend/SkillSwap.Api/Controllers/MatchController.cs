@@ -78,6 +78,30 @@
             if (userId == targetUserId)
                 return BadRequest("Cannot match with yourself");
 
+            var targetExists = await _context.Users.AnyAsync(u => u.Id == targetUserId);
+
+            if (!targetExists)
+                return NotFound("User not found");
+
+            var mySkills = await _context.UserSkills
+                .Where(us => us.UserId == userId)
+                .Select(us => us.SkillId)
+                .ToListAsync();
+
+            var myInterests = await _context.UserInterests
+                .Where(ui => ui.UserId == userId)
+                .Select(ui => ui.SkillId)
+                .ToListAsync();
+
+            var targetCanTeachWhatIWant = await _context.UserSkills
+                .AnyAsync(us => us.UserId == targetUserId && myInterests.Contains(us.SkillId));
+
+            var targetWantsWhatICanTeach = await _context.UserInterests
+                .AnyAsync(ui => ui.UserId == targetUserId && mySkills.Contains(ui.SkillId));
+
+            if (!targetCanTeachWhatIWant || !targetWantsWhatICanTeach)
+                return BadRequest("Your skills and interests do not match");
+
             // Перевіряємо чи вже є match
             var exists = await _context.Matches
                 .AnyAsync(m =>
@@ -146,7 +170,7 @@
             if (match.UserAId != userId && match.UserBId != userId)
                 return Forbid();
 
-            if (status != "active" && status != "rejected")
+            if (status != "active" && status != "rejected" && status != "completed")
                 return BadRequest("Invalid status");
 
             match.Status = status;

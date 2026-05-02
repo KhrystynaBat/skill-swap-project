@@ -175,9 +175,10 @@
         {
             var ratings = await _context.Reviews
                 .Where(r =>
-                    _context.Exchanges.Any(e =>
-                        e.Id == r.ExchangeId &&
-                        (e.UserAId == userId || e.UserBId == userId)
+                    _context.Matches.Any(m =>
+                        m.Id == r.ExchangeId &&
+                        (m.UserAId == userId || m.UserBId == userId) &&
+                        r.AuthorId != userId
                     ))
                 .Select(r => r.Rating)
                 .ToListAsync();

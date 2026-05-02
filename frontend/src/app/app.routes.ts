@@ -7,6 +7,7 @@ import { SearchUsersComponent } from './features/users/pages/search-users/search
 import { HomeComponent } from './features/home/pages/home/home.component';
 import { MatchesComponent } from './features/matches/pages/matches/matches.component';
 import { AboutComponent } from './features/home/pages/about/about.component';
+import { ChatComponent } from './features/chat/pages/chat/chat.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,6 +17,8 @@ export const routes: Routes = [
   { path: 'about', component: AboutComponent },
   { path: 'profile/edit', component: EditProfileComponent },
   { path: 'users/search', component: SearchUsersComponent },
+  { path: 'chat', component: ChatComponent },
+  { path: 'chat/:partnerId', component: ChatComponent },
 
   {
     path: 'users/:id',

@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   errorMessage = '';
   successMessage = '';
@@ -49,6 +50,7 @@ export class RegisterComponent {
           console.log('Register response:', response);
           this.successMessage = 'Registration successful!';
           this.errorMessage = '';
+          this.loginAfterRegister(formValue.email ?? '', formValue.password ?? '');
         },
         error: (error) => {
           console.error('Register error:', error);
@@ -56,5 +58,20 @@ export class RegisterComponent {
           this.successMessage = '';
         },
       });
+  }
+
+  private loginAfterRegister(email: string, password: string): void {
+    this.authService.login({ email, password }).subscribe({
+      next: (response) => {
+        if (response.token) {
+          this.authService.saveToken(response.token);
+          this.router.navigate(['/profile']);
+        }
+      },
+      error: (error) => {
+        console.error('Auto login error:', error);
+        this.router.navigate(['/login']);
+      },
+    });
   }
 }

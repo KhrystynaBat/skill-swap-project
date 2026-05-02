@@ -13,6 +13,7 @@
         <div class="nav">
             <ng-container *ngIf="isLoggedIn(); else guest">
                 <button routerLink="/matches">Matches</button>
+                <button routerLink="/chat">Messages</button>
                 <button (click)="goToSearch()">Search</button>
                 <button (click)="goToProfile()">Profile</button>
                 <button (click)="logout()">Logout</button>
