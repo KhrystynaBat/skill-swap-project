@@ -7,14 +7,14 @@
 
 | Група | Інструменти | Розташування | Що перевіряється | Кількість |
 | --- | --- | --- | --- | ---: |
-| Backend unit tests | xUnit + EF Core InMemory | [ChatControllerTests.cs](../backend/SkillSwap.Tests/ChatControllerTests.cs)<br>[MatchControllerTests.cs](../backend/SkillSwap.Tests/MatchControllerTests.cs)<br>[ProfileControllerTests.cs](../backend/SkillSwap.Tests/ProfileControllerTests.cs)<br>[ReviewControllerTests.cs](../backend/SkillSwap.Tests/ReviewControllerTests.cs) | Контролери, валідація, авторизація, логіка match/review/chat/profile | 32 |
+| Backend unit tests | xUnit + EF Core InMemory | [ChatControllerTests.cs](../backend/SkillSwap.Tests/ChatControllerTests.cs)<br>[ExchangeControllerTests.cs](../backend/SkillSwap.Tests/ExchangeControllerTests.cs)<br>[MatchControllerTests.cs](../backend/SkillSwap.Tests/MatchControllerTests.cs)<br>[ProfileControllerTests.cs](../backend/SkillSwap.Tests/ProfileControllerTests.cs)<br>[ReviewControllerTests.cs](../backend/SkillSwap.Tests/ReviewControllerTests.cs)<br>[SkillsControllerTests.cs](../backend/SkillSwap.Tests/SkillsControllerTests.cs) | Контролери, валідація, авторизація, логіка exchange/match/review/chat/profile/skills | 45 |
 | Backend API tests | xUnit + реальні HTTP-запити | [ApiTests.cs](../backend/SkillSwap.Tests/ApiTests.cs) | HTTP-статуси, захищені endpoint-и, некоректні запити, відповідь login з token | 8 |
 | Backend integration tests | xUnit + ASP.NET Core test app + EF Core InMemory | [IntegrationTests.cs](../backend/SkillSwap.Tests/IntegrationTests.cs)<br>[ApiIntegrationTestApp.cs](../backend/SkillSwap.Tests/ApiIntegrationTestApp.cs) | Повні API-сценарії: register/login, search, match, accept match, review | 5 |
 | Frontend service tests | Angular TestBed + HttpTestingController | [auth.service.spec.ts](../frontend/src/app/core/services/auth.service.spec.ts)<br>[users.service.spec.ts](../frontend/src/app/core/services/users.service.spec.ts)<br>[profile.service.spec.ts](../frontend/src/app/core/services/profile.service.spec.ts)<br>[skills.service.spec.ts](../frontend/src/app/core/services/skills.service.spec.ts) | Auth, users, profile, skills HTTP-запити та робота з token | 24 |
 | Frontend component tests | Angular TestBed + Jasmine | [app.spec.ts](../frontend/src/app/app.spec.ts)<br>[login.spec.ts](../frontend/src/app/features/auth/pages/login/login.spec.ts)<br>[register.spec.ts](../frontend/src/app/features/auth/pages/register/register.spec.ts)<br>[matches.component.spec.ts](../frontend/src/app/features/matches/pages/matches/matches.component.spec.ts)<br>[search-users.component.spec.ts](../frontend/src/app/features/users/pages/search-users/search-users.component.spec.ts) | Login/register форми, пошук користувачів, matches, app shell | 25 |
 | UI tests | Playwright | [skill-swap.ui.spec.ts](../frontend/e2e/skill-swap.ui.spec.ts)<br>[playwright.config.ts](../frontend/playwright.config.ts) | Реальні browser-сценарії: login, register, search + match, finish match + review | 4 |
 
-Поточна кількість автоматизованих тест-кейсів: **98**.
+Поточна кількість автоматизованих тест-кейсів: **111**.
 
 
 ## Backend Tests
@@ -28,9 +28,11 @@ Backend unit tests напряму викликають методи контро
 | Файл | Що покриває |
 | --- | --- |
 | `ChatControllerTests.cs` | Завантаження діалогів, створення повідомлень, належність повідомлень користувачам, логіка чату |
+| `ExchangeControllerTests.cs` | Створення exchange, confirm/complete exchange, перевірка `Unauthorized`, `NotFound`, `BadRequest`, `Forbid` |
 | `MatchControllerTests.cs` | Створення match, перевірка duplicate match, некоректний status, accept/reject/complete |
 | `ProfileControllerTests.cs` | Завантаження профілю, оновлення профілю, додавання skills та interests |
 | `ReviewControllerTests.cs` | Створення review, перевірка rating, захист від duplicate review, завершення active match |
+| `SkillsControllerTests.cs` | Завантаження списку skills, перевірка сортування за category/name, empty state |
 
 ### API Tests
 
@@ -105,5 +107,5 @@ UI-сценарії:
 CI/CD workflow знаходиться тут:
 
 ```text
-.github/workflows/automated-tests.yml
+.github/workflows/ci.yml
 ```
