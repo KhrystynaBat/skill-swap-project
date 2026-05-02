@@ -107,4 +107,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate version
-        run: echo Version: 1.0.${{ github.run_number }}
+        run: echo "Version: 1.0.${{ github.run_number }}"
