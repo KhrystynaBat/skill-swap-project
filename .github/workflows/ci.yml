@@ -111,11 +111,11 @@ jobs:
         run: echo "All checks passed"
   
   version:
-  name: Versioning
-  runs-on: ubuntu-latest
+    name: Versioning
+    runs-on: ubuntu-latest
 
-  steps:
-    - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Generate version
-      run: echo "Version: 1.0.${{ github.run_number }}"
+      - name: Generate version
+        run: echo "Version: 1.0.${{ github.run_number }}"
