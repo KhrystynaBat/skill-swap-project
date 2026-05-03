@@ -12,6 +12,6 @@ export class SkillsService {
   private apiUrl = environment.apiUrl;
 
   getSkills(): Observable<Skill[]> {
-    return this.http.get<Skill[]>(`${this.apiUrl}/api/skills`);
+    return this.http.get<Skill[]>(`${this.apiUrl}/skills`);
   }
 }

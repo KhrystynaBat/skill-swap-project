@@ -43,31 +43,31 @@ export class ProfileService {
   private apiUrl = environment.apiUrl;
 
   getMyProfile(): Observable<ProfileResponse> {
-    return this.http.get<ProfileResponse>(`${this.apiUrl}/api/profile/me`);
+    return this.http.get<ProfileResponse>(`${this.apiUrl}/profile/me`);
   }
 
   updateMyProfile(data: UpdateProfileRequest): Observable<string> {
-    return this.http.put(`${this.apiUrl}/api/profile/me`, data, {
+    return this.http.put(`${this.apiUrl}/profile/me`, data, {
       responseType: 'text',
     });
   }
 
   getMySkills(): Observable<UserSkillItem[]> {
-    return this.http.get<UserSkillItem[]>(`${this.apiUrl}/api/profile/skills`);
+    return this.http.get<UserSkillItem[]>(`${this.apiUrl}/profile/skills`);
   }
 
   addSkill(data: AddSkillRequest): Observable<string> {
-    return this.http.post(`${this.apiUrl}/api/profile/skills`, data, {
+    return this.http.post(`${this.apiUrl}/profile/skills`, data, {
       responseType: 'text',
     });
   }
 
   getMyInterests(): Observable<UserInterestItem[]> {
-    return this.http.get<UserInterestItem[]>(`${this.apiUrl}/api/profile/interests`);
+    return this.http.get<UserInterestItem[]>(`${this.apiUrl}/profile/interests`);
   }
 
   addInterest(data: AddInterestRequest): Observable<string> {
-    return this.http.post(`${this.apiUrl}/api/profile/interests`, data, {
+    return this.http.post(`${this.apiUrl}/profile/interests`, data, {
       responseType: 'text',
     });
   }

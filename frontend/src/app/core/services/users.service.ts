@@ -26,38 +26,38 @@ export class UsersService {
       params = params.set('category', category.trim());
     }
 
-    return this.http.get<SearchUser[]>(`${this.apiUrl}/api/users/search`, {
+    return this.http.get<SearchUser[]>(`${this.apiUrl}/users/search`, {
       params,
     });
   }
 
   getUserById(userId: number) {
-    return this.http.get<any>(`${this.apiUrl}/api/users/${userId}`);
+    return this.http.get<any>(`${this.apiUrl}/users/${userId}`);
   }
 
   getMyMatches() {
-    return this.http.get<any[]>(`${this.apiUrl}/api/match/my`);
+    return this.http.get<any[]>(`${this.apiUrl}/matches/my`);
   }
 
   updateMatchStatus(matchId: number, status: string) {
-    return this.http.put(`${this.apiUrl}/api/match/${matchId}/status?status=${status}`, {}, {
+    return this.http.put(`${this.apiUrl}/match/${matchId}/status?status=${status}`, {}, {
       responseType: 'text',
     });
   }
 
   createMatch(targetUserId: number) {
-    return this.http.post(`${this.apiUrl}/api/match/${targetUserId}`, {}, {
+    return this.http.post(`${this.apiUrl}/match/${targetUserId}`, {}, {
       responseType: 'text',
     });
   }
 
   getUserReviews(userId: number) {
-    return this.http.get<any[]>(`${this.apiUrl}/api/review/user/${userId}`);
+    return this.http.get<any[]>(`${this.apiUrl}/review/user/${userId}`);
   }
 
   createUserReview(userId: number, rating: number, comment: string) {
     return this.http.post(
-      `${this.apiUrl}/api/review/user/${userId}`,
+      `${this.apiUrl}/review/user/${userId}`,
       { rating, comment },
       { responseType: 'text' },
     );
