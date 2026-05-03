@@ -146,10 +146,10 @@ jobs:
         run: sleep 90
 
       - name: Health check frontend
-        run: curl -f https://skillswap-frontend.onrender.com || exit 1
+        run: curl -f https://skillswap-frontend-rzb6.onrender.com || exit 1
 
       - name: Health check backend
-        run: curl -f https://skill-swap-project.onrender.com/swagger || exit 1
+        run: curl -f https://skill-swap-project.onrender.com/health || exit 1
 
       - name: Deployment completed
         run: echo "Deployment to staging completed and verified successfully"
