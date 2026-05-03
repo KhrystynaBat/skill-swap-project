@@ -10,7 +10,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   version:
     name: Versioning
     runs-on: ubuntu-latest
@@ -24,7 +23,6 @@ jobs:
         run: |
           VERSION="1.0.${{ github.run_number }}"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
 
   frontend-tests:
     name: Frontend (Angular)
@@ -60,7 +58,6 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
       - run: npm run test:ui
-
 
   backend-tests:
     name: Backend (.NET)
@@ -107,7 +104,6 @@ jobs:
           path: backend/coverage-report
         if: ${{ always() }}
 
-
   quality:
     name: Quality Gate
     runs-on: ubuntu-latest
@@ -132,6 +128,7 @@ jobs:
 
       - name: Done
         run: echo "CI passed"
+
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
@@ -145,5 +142,14 @@ jobs:
       - name: Deploy frontend to Render
         run: curl -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}"
 
+      - name: Wait for Render deployment
+        run: sleep 90
+
+      - name: Health check frontend
+        run: curl -f https://skillswap-frontend.onrender.com || exit 1
+
+      - name: Health check backend
+        run: curl -f https://skill-swap-project.onrender.com/swagger || exit 1
+
       - name: Deployment completed
-        run: echo "Deployment to staging triggered successfully"
+        run: echo "Deployment to staging completed and verified successfully"
