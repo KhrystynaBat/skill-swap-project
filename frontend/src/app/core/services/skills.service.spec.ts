@@ -21,7 +21,7 @@ describe('SkillsService', () => {
   it('loads skills from API', () => {
     service.getSkills().subscribe((skills) => expect(skills.length).toBe(2));
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/skills`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/skills`);
     expect(req.request.method).toBe('GET');
     req.flush([
       { id: 1, name: 'C#', category: 'IT' },

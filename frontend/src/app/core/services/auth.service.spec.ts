@@ -31,7 +31,7 @@ describe('AuthService', () => {
   it('posts register data to the auth endpoint', () => {
     service.register({ name: 'Olesia', email: 'olesia@test.com', password: 'Pass123' }).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/auth/register`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/register`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
       name: 'Olesia',
@@ -47,7 +47,7 @@ describe('AuthService', () => {
       expect(response.token).toBe('jwt');
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/auth/login`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
     expect(req.request.method).toBe('POST');
     req.flush({ token: 'jwt' });
   });
@@ -58,7 +58,7 @@ describe('AuthService', () => {
       expect(response.email).toBe('user@test.com');
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/api/auth/me`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/me`);
     expect(req.request.method).toBe('GET');
     req.flush({ userId: '7', email: 'user@test.com' });
   });
