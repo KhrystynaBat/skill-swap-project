@@ -48,7 +48,7 @@ export class ChatService {
 
     if (!this.hubConnection) {
       this.hubConnection = new HubConnectionBuilder()
-        .withUrl(`${this.apiUrl}/hubs/chat`, {
+        .withUrl('https://skill-swap-project-lipk.onrender.com/hubs/chat', {
           accessTokenFactory: () => this.authService.getToken() || '',
         })
         .withAutomaticReconnect()

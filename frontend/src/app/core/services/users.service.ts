@@ -36,7 +36,7 @@ export class UsersService {
   }
 
   getMyMatches() {
-    return this.http.get<any[]>(`${this.apiUrl}/matches/my`);
+    return this.http.get<any[]>(`${this.apiUrl}/match/my`);
   }
 
   updateMatchStatus(matchId: number, status: string) {
