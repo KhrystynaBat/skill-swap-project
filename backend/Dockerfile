@@ -3,7 +3,7 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore SkillSwap.sln
+RUN dotnet restore
 RUN dotnet publish SkillSwap.Api/SkillSwap.Api.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
