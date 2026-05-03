@@ -8,6 +8,11 @@ public partial class InitialCreate
 }
 
 [ExcludeFromCodeCoverage]
+public partial class SeedDefaultSkills
+{
+}
+
+[ExcludeFromCodeCoverage]
 internal partial class SkillSwapDbContextModelSnapshot
 {
 }
