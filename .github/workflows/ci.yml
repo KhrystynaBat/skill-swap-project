@@ -133,23 +133,48 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: [quality]
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Deploy backend to Staging
+        run: curl -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK_STAGING }}"
+
+      - name: Deploy frontend to Staging
+        run: curl -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK_STAGING }}"
+
+      - name: Wait for Render deployment
+        run: sleep 90
+
+      - name: Health check backend staging
+        run: curl -f https://skill-swap-project-staging.onrender.com/health || exit 1
+
+      - name: Health check frontend staging
+        run: curl -f https://skillswap-frontend-staging.onrender.com || exit 1
+
+      - name: Deployment to staging completed
+        run: echo "Deployment to staging completed and verified successfully"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [quality]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
     steps:
-      - name: Deploy backend to Render
+      - name: Deploy backend to Production
         run: curl -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
 
-      - name: Deploy frontend to Render
+      - name: Deploy frontend to Production
         run: curl -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}"
 
       - name: Wait for Render deployment
         run: sleep 90
 
+      - name: Health check backend
+        run: curl -f https://skill-swap-project-lipk.onrender.com/health || exit 1
+
       - name: Health check frontend
         run: curl -f https://skillswap-frontend-rzb6.onrender.com || exit 1
 
-      - name: Health check backend
-        run: curl -f https://skill-swap-project.onrender.com/health || exit 1
-
-      - name: Deployment completed
-        run: echo "Deployment to staging completed and verified successfully"
+      - name: Deployment to production completed
+        run: echo "Deployment to production completed and verified successfully"
