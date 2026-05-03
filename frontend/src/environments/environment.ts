@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5194',
+  production: true,
+  apiUrl: 'https://skill-swap-project-lipk.onrender.com/api'
 };
