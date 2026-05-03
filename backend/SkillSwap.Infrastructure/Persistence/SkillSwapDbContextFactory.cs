@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace SkillSwap.Infrastructure.Persistence;
 
+[ExcludeFromCodeCoverage]
 public class SkillSwapDbContextFactory
     : IDesignTimeDbContextFactory<SkillSwapDbContext>
 {

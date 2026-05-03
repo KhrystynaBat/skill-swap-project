@@ -302,6 +302,8 @@ FakesAssemblies/
 node_modules/
 .npm-cache/
 .pw-browsers/
+.dotnet-home/
+.appdata/
 
 # Visual Studio 6 build log
 *.plg
