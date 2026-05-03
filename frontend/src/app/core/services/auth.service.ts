@@ -16,17 +16,17 @@ export class AuthService {
   private tokenKey = 'skill_swap_token';
 
   register(data: RegisterRequest): Observable<string> {
-    return this.http.post(`${this.apiUrl}/api/auth/register`, data, {
+    return this.http.post(`${this.apiUrl}/auth/register`, data, {
       responseType: 'text',
     });
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/auth/login`, data);
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, data);
   }
 
   getMe(): Observable<AuthMeResponse> {
-    return this.http.get<AuthMeResponse>(`${this.apiUrl}/api/auth/me`);
+    return this.http.get<AuthMeResponse>(`${this.apiUrl}/auth/me`);
   }
 
   saveToken(token: string): void {
