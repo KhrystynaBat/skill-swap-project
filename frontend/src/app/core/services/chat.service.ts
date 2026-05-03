@@ -20,11 +20,11 @@ export class ChatService {
   incomingMessages$ = this.incomingMessageSubject.asObservable();
 
   getConversations(): Observable<ChatConversation[]> {
-    return this.http.get<ChatConversation[]>(`${this.apiUrl}/api/chat/conversations`);
+    return this.http.get<ChatConversation[]>(`${this.apiUrl}/chat/conversations`);
   }
 
   getMessages(partnerId: number): Observable<ChatMessage[]> {
-    return this.http.get<ChatMessage[]>(`${this.apiUrl}/api/chat/${partnerId}/messages`);
+    return this.http.get<ChatMessage[]>(`${this.apiUrl}/chat/${partnerId}/messages`);
   }
 
   async startConnection(): Promise<void> {
@@ -84,7 +84,7 @@ export class ChatService {
 
     const body: SendChatMessageRequest = { text: payload };
     return await firstValueFrom(
-      this.http.post<ChatMessage>(`${this.apiUrl}/api/chat/${receiverId}/messages`, body),
+      this.http.post<ChatMessage>(`${this.apiUrl}/chat/${receiverId}/messages`, body),
     );
   }
 
