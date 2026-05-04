@@ -1,0 +1,33 @@
+{
+  "name": "skill-swap-project",
+  "version": "1.0.0",
+  "description": "[![Frontend](https://img.shields.io/badge/frontend-Angular-DD0031?logo=angular&logoColor=white)](https://angular.dev/) [![Backend](https://img.shields.io/badge/backend-.NET-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/) [![Database](https://img.shields.io/badge/database-PostgreSQL-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Tests](https://img.shields.io/badge/tests-Angular%20%7C%20xUnit%20%7C%20Playwright-brightgreen)](./tests/automated_tests.md) ![CI](https://github.com/KhrystynaBat/skill-swap-project/actions/workflows/ci.yml/badge.svg)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KhrystynaBat/skill-swap-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KhrystynaBat/skill-swap-project/issues"
+  },
+  "homepage": "https://github.com/KhrystynaBat/skill-swap-project#readme",
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "semantic-release": "^25.0.3"
+  }
+}
