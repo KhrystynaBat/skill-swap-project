@@ -245,7 +245,7 @@ jobs:
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [quality]
+    needs: [version]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 
     steps:
