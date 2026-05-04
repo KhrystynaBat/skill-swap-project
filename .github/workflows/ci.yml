@@ -149,8 +149,7 @@ jobs:
 
       - name: Run tests + coverage
         run: |
-          dotnet test \
-            --no-build \
+          dotnet test SkillSwap.Tests/SkillSwap.Tests.csproj \
             --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
