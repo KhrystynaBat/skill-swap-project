@@ -62,7 +62,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularApp", policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200", "https://skillswap-frontend-rzb6.onrender.com", "https://skillswap-frontend-staging.onrender.com")
+            .WithOrigins(
+                "http://localhost:4200",
+                "https://skillswap-frontend-rzb6.onrender.com",
+                "https://skillswap-frontend-staging.onrender.com")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

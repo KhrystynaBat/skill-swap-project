@@ -146,10 +146,34 @@ jobs:
         run: sleep 90
 
       - name: Health check backend staging
-        run: curl -f https://skill-swap-project-staging.onrender.com/health || exit 1
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i..."
+            if curl -f -w "\nStatus: %{http_code} | Time: %{time_total}s\n" \
+               https://skill-swap-project-staging.onrender.com/health; then
+              echo "Backend staging is healthy"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 30s..."
+            sleep 30
+          done
+          echo "All health checks failed!"
+          exit 1
 
       - name: Health check frontend staging
-        run: curl -f https://skillswap-frontend-staging.onrender.com || exit 1
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i..."
+            if curl -f -w "\nStatus: %{http_code} | Time: %{time_total}s\n" \
+               https://skillswap-frontend-staging.onrender.com; then
+              echo "Frontend staging is healthy"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 30s..."
+            sleep 30
+          done
+          echo "All health checks failed!"
+          exit 1
 
       - name: Deployment to staging completed
         run: echo "Deployment to staging completed and verified successfully"
@@ -171,10 +195,34 @@ jobs:
         run: sleep 90
 
       - name: Health check backend
-        run: curl -f https://skill-swap-project-lipk.onrender.com/health || exit 1
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i..."
+            if curl -f -w "\nStatus: %{http_code} | Time: %{time_total}s\n" \
+               https://skill-swap-project-lipk.onrender.com/health; then
+              echo "Backend is healthy"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 30s..."
+            sleep 30
+          done
+          echo "All health checks failed!"
+          exit 1
 
       - name: Health check frontend
-        run: curl -f https://skillswap-frontend-rzb6.onrender.com || exit 1
+        run: |
+          for i in 1 2 3; do
+            echo "Attempt $i..."
+            if curl -f -w "\nStatus: %{http_code} | Time: %{time_total}s\n" \
+               https://skillswap-frontend-rzb6.onrender.com; then
+              echo "Frontend is healthy"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 30s..."
+            sleep 30
+          done
+          echo "All health checks failed!"
+          exit 1
 
       - name: Deployment to production completed
         run: echo "Deployment to production completed and verified successfully"
