@@ -194,7 +194,7 @@ jobs:
       - name: Wait for Render deployment
         run: sleep 90
 
-      - name: Health check backend
+      - name: Health check backend with rollback
         run: |
           for i in 1 2 3; do
             echo "Attempt $i..."
@@ -206,10 +206,23 @@ jobs:
             echo "Attempt $i failed, retrying in 30s..."
             sleep 30
           done
-          echo "All health checks failed!"
+          echo "Backend health check failed! Triggering rollback..."
+          DEPLOYS=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_SERVICE_ID }}/deploys?limit=2")
+          PREVIOUS_DEPLOY_ID=$(echo $DEPLOYS | python3 -c "
+          import sys, json
+          deploys = json.load(sys.stdin)
+          print(deploys[1]['deploy']['id'])
+          ")
+          echo "Rolling back to deploy: $PREVIOUS_DEPLOY_ID"
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_SERVICE_ID }}/deploys/$PREVIOUS_DEPLOY_ID/rollback"
+          echo "Rollback triggered for backend"
           exit 1
 
-      - name: Health check frontend
+      - name: Health check frontend with rollback
         run: |
           for i in 1 2 3; do
             echo "Attempt $i..."
@@ -221,7 +234,20 @@ jobs:
             echo "Attempt $i failed, retrying in 30s..."
             sleep 30
           done
-          echo "All health checks failed!"
+          echo "Frontend health check failed! Triggering rollback..."
+          DEPLOYS=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_SERVICE_ID }}/deploys?limit=2")
+          PREVIOUS_DEPLOY_ID=$(echo $DEPLOYS | python3 -c "
+          import sys, json
+          deploys = json.load(sys.stdin)
+          print(deploys[1]['deploy']['id'])
+          ")
+          echo "Rolling back to deploy: $PREVIOUS_DEPLOY_ID"
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_SERVICE_ID }}/deploys/$PREVIOUS_DEPLOY_ID/rollback"
+          echo "Rollback triggered for frontend"
           exit 1
 
       - name: Deployment to production completed
