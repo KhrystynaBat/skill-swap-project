@@ -5,6 +5,7 @@
 [![Database](https://img.shields.io/badge/database-PostgreSQL-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tests](https://img.shields.io/badge/tests-Angular%20%7C%20xUnit%20%7C%20Playwright-brightgreen)](./tests/automated_tests.md)
 ![CI](https://github.com/KhrystynaBat/skill-swap-project/actions/workflows/ci.yml/badge.svg)
+![Version](https://img.shields.io/github/v/release/KhrystynaBat/skill-swap-project?sort=semver)
 
 **SkillSwap** - це веб-застосунок для обміну навичками між користувачами.
 Користувач може створити профіль, додати навички, які він може викладати, додати навички, які хоче вивчити, знайти людей зі спільними інтересами, створити match, спілкуватися в чаті та залишати відгуки після завершення обміну.
@@ -29,7 +30,7 @@
 | Frontend | Angular, TypeScript, RxJS, Jasmine/Karma, Playwright |
 | Backend | ASP.NET Core, Entity Framework Core, SignalR, xUnit |
 | Database | PostgreSQL |
-| CI/CD | GitHub Actions, Render deploy hooks |
+| CI/CD | GitHub Actions, semantic-release, Render |
 
 ## Структура проєкту
 
@@ -101,7 +102,7 @@ Pipeline знаходиться у файлі:
 
 Workflow запускається при:
 
-- `push` у `main`, `master`, `develop`;
+- `push` у `main`, `develop`;
 - відкритті або оновленні Pull Request.
 
 Pipeline виконує:
@@ -120,6 +121,16 @@ Pipeline виконує:
 - deploy на production з `main` або `master`;
 - health checks після deploy;
 - rollback для production у разі невдалого health check.
+
+ ## Versioning
+
+Проєкт використовує **semantic-release** для автоматичного versioning та генерації changelog.
+
+### Conventional commits:
+
+- `feat:` нова функціональність  
+- `fix:` виправлення багів   
+- `BREAKING CHANGE:` несумісні зміни (major version)
 
 ## Документація
 
