@@ -10,24 +10,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  version:
-    name: Versioning
+
+  # LINT FRONTEND
+  lint-frontend:
+    name: Lint (Frontend)
     runs-on: ubuntu-latest
-
-    outputs:
-      version: ${{ steps.set_version.outputs.VERSION }}
-
-    steps:
-      - name: Generate version
-        id: set_version
-        run: |
-          VERSION="1.0.${{ github.run_number }}"
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
-  frontend-tests:
-    name: Frontend (Angular)
-    runs-on: ubuntu-latest
-    needs: version
 
     defaults:
       run:
@@ -36,8 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
@@ -45,24 +31,12 @@ jobs:
 
       - run: npm ci
       - run: npm run lint
-      - run: npm run build -- --configuration production
-      - run: npx tsc -p tsconfig.spec.json --noEmit
-      - run: npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
 
-      - name: Upload frontend coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-coverage-report
-          path: frontend/coverage
-        if: ${{ always() }}
 
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:ui
-
-  backend-tests:
-    name: Backend (.NET)
+  # LINT BACKEND
+  lint-backend:
+    name: Lint (Backend)
     runs-on: ubuntu-latest
-    needs: version
 
     defaults:
       run:
@@ -71,15 +45,109 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - run: dotnet tool restore
+      - run: dotnet format --verify-no-changes
+
+
+  # BUILD
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint-frontend, lint-backend]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Frontend
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: cd frontend && npm ci
+      - run: cd frontend && npm run build -- --configuration production
+
+      # Backend
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - run: cd backend && dotnet restore
+      - run: cd backend && dotnet build --no-restore --configuration Release
+
+      - name: Create build report
+        run: |
+          echo "Build number: ${{ github.run_number }}" > build-info.txt
+          echo "Commit: ${{ github.sha }}" >> build-info.txt
+          echo "Branch: ${{ github.ref_name }}" >> build-info.txt
+
+
+  # FRONTEND TESTS
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Type check
+        run: npx tsc -p tsconfig.spec.json --noEmit
+
+      - name: Unit tests + coverage
+        run: npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
+
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+        if: ${{ always() }}
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: UI tests
+        run: npm run test:ui
+
+
+  # BACKEND TESTS
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
 
       - run: dotnet restore
-      - run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests
+      - name: Run tests + coverage
         run: |
           dotnet test \
             --no-build \
@@ -88,11 +156,11 @@ jobs:
             --logger trx \
             --results-directory TestResults
 
-      - run: dotnet tool install -g dotnet-reportgenerator-globaltool
+      - run: dotnet tool restore
 
       - name: Generate coverage
         run: |
-          reportgenerator \
+          dotnet tool run reportgenerator \
             -reports:**/coverage.cobertura.xml \
             -targetdir:coverage-report \
             -reporttypes:Html
@@ -100,9 +168,30 @@ jobs:
       - name: Upload backend coverage
         uses: actions/upload-artifact@v4
         with:
-          name: backend-coverage-report
+          name: backend-coverage
           path: backend/coverage-report
         if: ${{ always() }}
+
+  version:
+    name: Semantic Versioning
+    runs-on: ubuntu-latest
+    needs: [frontend-tests, backend-tests] 
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
 
   quality:
     name: Quality Gate
@@ -112,7 +201,6 @@ jobs:
     steps:
       - name: Generate build report
         run: |
-          echo "Version: ${{ needs.version.outputs.version }}" > build-info.txt
           echo "Build time: $(date -u)" >> build-info.txt
           echo "Branch: ${{ github.ref_name }}" >> build-info.txt
           echo "Commit: ${{ github.sha }}" >> build-info.txt

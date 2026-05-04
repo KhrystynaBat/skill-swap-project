@@ -2,7 +2,7 @@
 {
     public class ChatMessage
     {
-        public int Id { get; set; }  
+        public int Id { get; set; }
 
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
